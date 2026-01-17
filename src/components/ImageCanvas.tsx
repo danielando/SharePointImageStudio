@@ -1,7 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Download, Trash2, ChevronLeft, ChevronRight, X, Copy, RotateCcw, Sparkles } from 'lucide-react'
 import { useStore } from '../store/useStore'
+
+const LOADING_MESSAGES = [
+  'Mixing pixels...',
+  'Consulting the AI...',
+  'Adding creativity...',
+  'Painting your vision...',
+  'Crafting magic...',
+  'Thinking visually...',
+  'Summoning pixels...',
+  'Building your image...',
+  'Creating art...',
+  'Dreaming in code...',
+]
 
 export default function ImageCanvas() {
   const {
@@ -12,6 +25,8 @@ export default function ImageCanvas() {
     setPrompt,
     addImageReference
   } = useStore()
+
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
 
   const [, setIsDragging] = useState(false)
   const [, setDraggedImage] = useState<string | null>(null)
@@ -79,10 +94,19 @@ export default function ImageCanvas() {
   }
 
   // Add keyboard listener
-  useState(() => {
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyDown as any)
     return () => window.removeEventListener('keydown', handleKeyDown as any)
-  })
+  }, [selectedGeneration])
+
+  // Rotate loading messages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length)
+    }, 2000) // Change message every 2 seconds
+
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div>
@@ -114,7 +138,18 @@ export default function ImageCanvas() {
               <div className="aspect-video bg-gray-100 rounded-2xl flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-10 h-10 border-3 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
-                  <p className="text-sm text-gray-500">Generating...</p>
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={loadingMessageIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-sm text-gray-500 font-medium"
+                    >
+                      {LOADING_MESSAGES[loadingMessageIndex]}
+                    </motion.p>
+                  </AnimatePresence>
                 </div>
               </div>
             )}
