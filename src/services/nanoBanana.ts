@@ -19,6 +19,10 @@ export async function generateImage(params: GenerateImageRequest): Promise<strin
     console.log('Prompt:', params.prompt)
     console.log('Dimensions:', params.width, 'x', params.height)
 
+    if (!API_KEY) {
+      throw new Error('VITE_NANO_BANANA_API_KEY environment variable is not set. Please add your Google Gemini API key to your environment variables.')
+    }
+
     // Use the exact prompt without modifications for better results
     const fullPrompt = params.prompt
 
