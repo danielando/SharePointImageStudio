@@ -116,7 +116,6 @@ export default function ImageCanvas() {
             {generations.map((generation) => {
               // Calculate aspect ratio from dimensions (e.g., "2560x720" -> 2560/720)
               const [width, height] = generation.dimensions.split('x').map(Number)
-              const aspectRatio = width / height
               const aspectRatioStyle = { aspectRatio: `${width}/${height}` }
 
               return (
