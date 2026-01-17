@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useStore } from './store/useStore'
-import { supabase } from './lib/supabase'
 import { generateImage, uploadImageReference } from './services/nanoBanana'
 import GenerationInterface from './components/GenerationInterface'
 import ElementsModal from './components/ElementsModal'
@@ -15,8 +14,6 @@ export default function App() {
     prompt,
     variationsCount,
     imageReferences,
-    setElements,
-    setGenerations,
     addGeneration,
     updateGeneration,
   } = useStore()
