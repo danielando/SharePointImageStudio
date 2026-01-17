@@ -167,53 +167,52 @@ export default function ImageCanvas() {
                   opacity-0 group-hover:opacity-100
                   pointer-events-none group-hover:pointer-events-auto
                   transition-opacity duration-200
-                  p-3
+                  p-2
                 "
                 onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="flex items-center justify-start gap-2">
-                    <button
-                      onClick={() => {
-                        addImageReference({
-                          id: crypto.randomUUID(),
-                          url: generation.image_url
-                        })
-                      }}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg transition-colors text-white text-xs font-medium"
-                      title="Use as reference"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Vary</span>
-                    </button>
-                    <button
-                      onClick={() => handleCopyToClipboard(generation.image_url)}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg transition-colors text-white text-xs font-medium"
-                      title="Copy to clipboard"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>Copy</span>
-                    </button>
+                  <div className="flex items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => {
+                          addImageReference({
+                            id: crypto.randomUUID(),
+                            url: generation.image_url
+                          })
+                        }}
+                        className="p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-md transition-colors"
+                        title="Use as reference"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-white" />
+                      </button>
+                      <button
+                        onClick={() => handleCopyToClipboard(generation.image_url)}
+                        className="p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-md transition-colors"
+                        title="Copy to clipboard"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-white" />
+                      </button>
+                    </div>
 
-                    <div className="flex-1"></div>
-
-                    <button
-                      onClick={() => handleDownload(
-                        generation.image_url,
-                        `sharepoint-${generation.generation_type}-${Date.now()}.png`
-                      )}
-                      className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg transition-colors text-white text-xs font-medium"
-                      title="Download"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>Download</span>
-                    </button>
-                    <button
-                      onClick={() => deleteGeneration(generation.id)}
-                      className="p-1.5 bg-white/10 hover:bg-red-500/80 backdrop-blur-sm rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-white" />
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleDownload(
+                          generation.image_url,
+                          `sharepoint-${generation.generation_type}-${Date.now()}.png`
+                        )}
+                        className="p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-md transition-colors"
+                        title="Download"
+                      >
+                        <Download className="w-3.5 h-3.5 text-white" />
+                      </button>
+                      <button
+                        onClick={() => deleteGeneration(generation.id)}
+                        className="p-1.5 bg-white/10 hover:bg-red-500/80 backdrop-blur-sm rounded-md transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-white" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </>
