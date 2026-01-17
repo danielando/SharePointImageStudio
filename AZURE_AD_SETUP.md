@@ -30,7 +30,7 @@ Follow these steps to create an Azure AD app registration for SharePoint Image S
    - This allows anyone with a Microsoft 365 or personal Microsoft account to sign in
 
    **Redirect URI:**
-   - Platform: **Single-page application (SPA)**
+   - Platform: **Web**
    - URL: `http://localhost:5173`
 
 4. Click **Register**
@@ -45,13 +45,11 @@ After registration, you'll be on the app's overview page. Note down:
 ### Step 5: Add Redirect URIs
 
 1. In the left sidebar, click **Authentication**
-2. Under **Single-page application**, add these redirect URIs:
+2. Under **Web** platform, add these redirect URIs:
    - `http://localhost:5173` (for local development)
-   - `https://sharepointimagestudio.vercel.app` (for production)
-   - `https://your-production-domain.com` (if you have a custom domain)
-3. Under **Logout URL**, add:
-   - `http://localhost:5173`
-   - `https://sharepointimagestudio.vercel.app`
+   - `https://www.sharepointimagestudio.com` (for production)
+3. Scroll down to **Implicit grant and hybrid flows** and check:
+   - ✅ **ID tokens** (used for implicit and hybrid flows)
 4. Click **Save**
 
 ### Step 6: Configure API Permissions
@@ -88,9 +86,9 @@ Once you deploy to production:
 2. Select your project
 3. Go to **Settings** > **Environment Variables**
 4. Add these variables:
-   - `VITE_AZURE_AD_CLIENT_ID` = your client ID
+   - `VITE_AZURE_AD_CLIENT_ID` = your client ID (55f5342b-d3a3-442b-ba1e-0a5adc18daf4)
    - `VITE_AZURE_AD_TENANT_ID` = common
-   - `VITE_AZURE_AD_REDIRECT_URI` = https://sharepointimagestudio.vercel.app
+   - `VITE_AZURE_AD_REDIRECT_URI` = https://www.sharepointimagestudio.com
 5. Redeploy your application
 
 ## Testing Authentication
