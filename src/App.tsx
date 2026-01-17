@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Sparkles, Grid3x3, LogOut } from 'lucide-react'
+import { useEffect } from 'react'
 import { useStore } from './store/useStore'
 import { supabase } from './lib/supabase'
 import { generateImage, uploadImageReference } from './services/nanoBanana'
-import Auth from './components/Auth'
 import GenerationInterface from './components/GenerationInterface'
 import ElementsModal from './components/ElementsModal'
 import ImageCanvas from './components/ImageCanvas'
@@ -13,21 +11,15 @@ export default function App() {
   const {
     userId,
     setUserId,
-    isAuthenticated,
     selectedType,
     prompt,
     variationsCount,
     imageReferences,
-    setShowElementsModal,
-    elements,
     setElements,
-    generations,
     setGenerations,
     addGeneration,
     updateGeneration,
   } = useStore()
-
-  const [isInitializing] = useState(false)
 
   // Skip auth for now - set a temporary user ID
   useEffect(() => {

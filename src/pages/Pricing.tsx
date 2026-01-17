@@ -1,4 +1,4 @@
-import { Check, Sparkles } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Pricing() {

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Sparkles, Upload, X, Maximize2, Palette, Image as ImageIcon, Wand2, Shuffle } from 'lucide-react'
+import { Sparkles, X, Maximize2, Palette, Image as ImageIcon, Shuffle } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { GENERATION_TYPES } from '../types'
 import { ImageReference } from '../types'
