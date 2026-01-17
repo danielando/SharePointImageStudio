@@ -27,42 +27,6 @@ export default function App() {
     setUserId('dev-user-123')
   }, [])
 
-  const loadUserData = async (uid: string) => {
-    try {
-      // Load elements
-      const { data: elementsData, error: elementsError } = await supabase
-        .from('elements')
-        .select('*')
-        .eq('user_id', uid)
-        .order('created_at', { ascending: false })
-
-      if (elementsError) throw elementsError
-      if (elementsData) setElements(elementsData)
-
-      // Load generations
-      const { data: generationsData, error: generationsError } = await supabase
-        .from('generations')
-        .select('*')
-        .eq('user_id', uid)
-        .order('created_at', { ascending: false })
-        .limit(50)
-
-      if (generationsError) throw generationsError
-      if (generationsData) {
-        setGenerations(generationsData.map(g => ({ ...g, status: 'completed' as const })))
-      }
-    } catch (error) {
-      console.error('Error loading user data:', error)
-    }
-  }
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    setUserId(null)
-    setElements([])
-    setGenerations([])
-  }
-
   const handleGenerate = async () => {
     if (!prompt.trim()) return
 
@@ -126,10 +90,12 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo/Icon - Left */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-semibold text-gray-900">SharePoint Studio</span>
+            <img
+              src="/SharePointImageStudioLogo.png"
+              alt="SharePoint Image Studio Logo"
+              className="w-16 h-16 object-contain"
+            />
+            <span className="font-semibold text-gray-900">SharePoint Image Studio</span>
           </div>
 
           {/* Navigation - Right */}
