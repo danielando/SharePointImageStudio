@@ -130,20 +130,22 @@ export default function Pricing() {
           {plans.map((plan, index) => (
             <div
               key={index}
-              className="border border-gray-200 rounded-2xl p-6 bg-white hover:shadow-lg transition-shadow"
+              className="border border-gray-200 rounded-2xl p-6 bg-white hover:shadow-lg transition-shadow flex flex-col"
             >
               {/* Plan Header */}
               <div className="mb-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+                <p className="text-sm text-gray-600 mb-4 min-h-[40px]">{plan.description}</p>
 
                 <div className="flex items-baseline mb-1">
                   <span className="text-4xl font-bold text-gray-900">USD {plan.price}</span>
                   <span className="text-gray-600 ml-1">{plan.period}</span>
                 </div>
-                {plan.billingNote && (
-                  <p className="text-xs text-gray-500">{plan.billingNote}</p>
-                )}
+                <div className="h-4">
+                  {plan.billingNote && (
+                    <p className="text-xs text-gray-500">{plan.billingNote}</p>
+                  )}
+                </div>
               </div>
 
               {/* CTA Button */}
@@ -159,30 +161,32 @@ export default function Pricing() {
                 <span>{plan.limit}</span>
               </div>
 
-              {/* Slider for Max Plan */}
-              {plan.slider && (
-                <div className="mb-6">
-                  <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                    <span>40k</span>
-                    <span>60k</span>
-                    <span>80k</span>
-                    <span>100k</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="40000"
-                    max="100000"
-                    defaultValue="60000"
-                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
-                    style={{
-                      background: 'linear-gradient(to right, #000 0%, #000 33%, #e5e7eb 33%, #e5e7eb 100%)'
-                    }}
-                  />
-                </div>
-              )}
+              {/* Slider for Max Plan - Fixed height for alignment */}
+              <div className="mb-6" style={{ minHeight: plan.slider ? 'auto' : '0px' }}>
+                {plan.slider && (
+                  <>
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+                      <span>40k</span>
+                      <span>60k</span>
+                      <span>80k</span>
+                      <span>100k</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="40000"
+                      max="100000"
+                      defaultValue="60000"
+                      className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
+                      style={{
+                        background: 'linear-gradient(to right, #000 0%, #000 33%, #e5e7eb 33%, #e5e7eb 100%)'
+                      }}
+                    />
+                  </>
+                )}
+              </div>
 
-              {/* Features */}
-              <div>
+              {/* Features - Grow to fill space */}
+              <div className="flex-1">
                 {plan.heading && (
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-900 mb-3">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
