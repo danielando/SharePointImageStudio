@@ -142,30 +142,6 @@ export default function Pricing() {
                 <span>{plan.limit}</span>
               </div>
 
-              {/* Slider for Max Plan - Fixed height for alignment */}
-              <div className="mb-6" style={{ minHeight: plan.slider ? 'auto' : '0px' }}>
-                {plan.slider && (
-                  <>
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                      <span>40k</span>
-                      <span>60k</span>
-                      <span>80k</span>
-                      <span>100k</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="40000"
-                      max="100000"
-                      defaultValue="60000"
-                      className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer"
-                      style={{
-                        background: 'linear-gradient(to right, #000 0%, #000 33%, #e5e7eb 33%, #e5e7eb 100%)'
-                      }}
-                    />
-                  </>
-                )}
-              </div>
-
               {/* Features - Grow to fill space */}
               <div className="flex-1">
                 {plan.heading && (
