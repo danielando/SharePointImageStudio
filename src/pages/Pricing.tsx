@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react'
+import { Check, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Pricing() {
@@ -80,24 +80,26 @@ export default function Pricing() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 py-2 flex items-center justify-between">
+          {/* Logo/Icon - Left */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
-              </svg>
-            </div>
-            <span className="font-semibold text-gray-900">SharePoint Studio</span>
+            <img
+              src="/SharePointImageStudioLogo.png"
+              alt="SharePoint Image Studio Logo"
+              className="w-16 h-16 object-contain"
+            />
+            <span className="font-semibold text-gray-900">SharePoint Image Studio</span>
           </Link>
 
+          {/* Navigation - Right */}
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-              Home
+            <Link to="/pricing" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
+              Pricing
             </Link>
             <button className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
               Login
             </button>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">
+            <button className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-full transition-colors">
               Sign Up
             </button>
           </div>

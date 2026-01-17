@@ -290,13 +290,13 @@ export default function GenerationInterface({ onGenerate }: GenerationInterfaceP
                 <span>{IMAGE_STYLES.find(s => s.id === selectedStyle)?.name || 'Style'}</span>
               </button>
 
-              {/* Image Prompt Button */}
+              {/* Reference Image Button */}
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700"
               >
                 <ImageIcon className="w-4 h-4" />
-                <span>Image prompt</span>
+                <span>Reference image</span>
               </button>
 
               <input
@@ -307,12 +307,6 @@ export default function GenerationInterface({ onGenerate }: GenerationInterfaceP
                 onChange={(e) => handleFileUpload(e.target.files)}
                 className="hidden"
               />
-
-              {/* Style Transfer Button */}
-              <button className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700">
-                <Wand2 className="w-4 h-4" />
-                <span>Style transfer</span>
-              </button>
 
               {/* Random Prompt Button */}
               <button
