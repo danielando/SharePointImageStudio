@@ -54,25 +54,6 @@ export default function Pricing() {
         'Bulk discounts on extra compute units',
         'Early access to new features',
       ]
-    },
-    {
-      name: 'Max',
-      description: 'Full access with higher discounts on compute units',
-      price: 105,
-      period: '/mo',
-      billingNote: 'billed monthly',
-      buttonText: 'Get Max',
-      buttonStyle: 'bg-black hover:bg-gray-800 text-white',
-      limit: '60,000 compute units / month',
-      heading: 'Everything in Pro plus:',
-      features: [
-        'Unlimited LoRA trainings',
-        'Unlimited Concurrency',
-        'Upscale videos and images to 22k resolution',
-        'Unlimited relaxed generations on selected models',
-        'High priority queues',
-      ],
-      slider: true
     }
   ]
 
@@ -126,7 +107,7 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ gridAutoRows: '1fr' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" style={{ gridAutoRows: '1fr' }}>
           {plans.map((plan, index) => (
             <div
               key={index}
