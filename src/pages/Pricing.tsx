@@ -126,11 +126,11 @@ export default function Pricing() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ gridAutoRows: '1fr' }}>
           {plans.map((plan, index) => (
             <div
               key={index}
-              className="border border-gray-200 rounded-2xl p-6 bg-white hover:shadow-lg transition-shadow flex flex-col"
+              className="border border-gray-200 rounded-2xl p-6 bg-white hover:shadow-lg transition-shadow flex flex-col h-full"
             >
               {/* Plan Header */}
               <div className="mb-6">
