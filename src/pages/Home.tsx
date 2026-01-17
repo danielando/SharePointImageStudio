@@ -1,17 +1,23 @@
 import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useIsAuthenticated, useMsal } from '@azure/msal-react'
 import { useStore } from '../store/useStore'
 import { generateImage, uploadImageReference } from '../services/nanoBanana'
+import { signIn } from '../services/authService'
+import { supabase } from '../services/supabase'
 import GenerationInterface from '../components/GenerationInterface'
 import ElementsModal from '../components/ElementsModal'
 import ImageCanvas from '../components/ImageCanvas'
+import Header from '../components/Header'
 import { Generation } from '../types'
 import { IMAGE_STYLES } from '../constants/imageStyles'
 
 export default function Home() {
+  const isAuthenticated = useIsAuthenticated()
+  const { accounts } = useMsal()
   const {
-    userId,
-    setUserId,
+    user,
+    setUser,
+    setAuthenticated,
     selectedType,
     prompt,
     variationsCount,
@@ -24,13 +30,48 @@ export default function Home() {
 
   const hasGenerations = generations.length > 0
 
-  // Skip auth for now - set a temporary user ID
+  // Load user data when authenticated
   useEffect(() => {
-    setUserId('dev-user-123')
-  }, [])
+    const loadUser = async () => {
+      if (isAuthenticated && accounts.length > 0) {
+        const account = accounts[0]
+
+        // Load user from Supabase
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('*')
+          .eq('azure_ad_id', account.homeAccountId)
+          .single()
+
+        if (existingUser) {
+          setUser(existingUser)
+          setAuthenticated(true)
+        }
+      }
+    }
+
+    loadUser()
+  }, [isAuthenticated, accounts])
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return
+
+    // Check if user is authenticated
+    if (!isAuthenticated || !user) {
+      alert('Please sign in to generate images')
+      await signIn()
+      return
+    }
+
+    // Check usage limits
+    const { data: usageCheck } = await supabase
+      .rpc('check_and_reset_monthly_usage', { p_user_id: user.id })
+      .single()
+
+    if (!usageCheck?.can_generate) {
+      alert(`You've reached your monthly limit of ${user.monthly_image_limit} images. Please upgrade your plan.`)
+      return
+    }
 
     // Upload image references once (shared across all variations)
     const imageRefs = await Promise.all(
@@ -47,7 +88,7 @@ export default function Home() {
       const generationId = crypto.randomUUID()
       const newGeneration: Generation = {
         id: generationId,
-        user_id: userId || 'dev-user-123',
+        user_id: user.id,
         prompt,
         generation_type: selectedType.name,
         dimensions: `${selectedType.dimensions.width}x${selectedType.dimensions.height}`,
@@ -74,6 +115,23 @@ export default function Home() {
             imageReferences: imageRefs.length > 0 ? imageRefs : undefined,
           })
 
+          // Increment usage counter
+          await supabase.rpc('increment_user_usage', {
+            p_user_id: user.id,
+            p_credits_used: 1,
+          })
+
+          // Refresh user data
+          const { data: updatedUser } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+
+          if (updatedUser) {
+            setUser(updatedUser)
+          }
+
           updateGeneration(generationId, {
             image_url: imageUrl,
             status: 'completed',
@@ -88,33 +146,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-2 flex items-center justify-between">
-          {/* Logo/Icon - Left */}
-          <div className="flex items-center gap-2">
-            <img
-              src="/SharePointImageStudioLogo.png"
-              alt="SharePoint Image Studio Logo"
-              className="w-16 h-16 object-contain"
-            />
-            <span className="font-semibold text-gray-900">SharePoint Image Studio</span>
-          </div>
-
-          {/* Navigation - Right */}
-          <div className="flex items-center gap-6">
-            <Link to="/pricing" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-              Pricing
-            </Link>
-            <button className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-              Login
-            </button>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-full transition-colors">
-              Sign Up
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Centered Layout - No generations yet */}
       {!hasGenerations && (

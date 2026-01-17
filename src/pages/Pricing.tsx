@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import Header from '../components/Header'
 
 export default function Pricing() {
   const plans = [
@@ -56,33 +56,7 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-2 flex items-center justify-between">
-          {/* Logo/Icon - Left */}
-          <Link to="/" className="flex items-center gap-2">
-            <img
-              src="/SharePointImageStudioLogo.png"
-              alt="SharePoint Image Studio Logo"
-              className="w-16 h-16 object-contain"
-            />
-            <span className="font-semibold text-gray-900">SharePoint Image Studio</span>
-          </Link>
-
-          {/* Navigation - Right */}
-          <div className="flex items-center gap-6">
-            <Link to="/pricing" className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-              Pricing
-            </Link>
-            <button className="text-sm text-gray-600 hover:text-gray-900 transition-colors">
-              Login
-            </button>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-full transition-colors">
-              Sign Up
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Pricing Content */}
       <div className="max-w-7xl mx-auto px-6 py-16">

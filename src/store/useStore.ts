@@ -1,11 +1,27 @@
 import { create } from 'zustand'
 import { Element, Generation, ImageReference, GenerationType, GENERATION_TYPES } from '../types'
 
+interface User {
+  id: string
+  azure_ad_id: string
+  email: string
+  display_name: string
+  subscription_tier: 'free' | 'basic' | 'pro'
+  monthly_image_limit: number
+  monthly_images_used: number
+  billing_period_start: string
+  billing_period_end: string
+  stripe_customer_id?: string
+}
+
 interface AppState {
   // User & Auth
   userId: string | null
+  user: User | null
   isAuthenticated: boolean
   setUserId: (id: string | null) => void
+  setUser: (user: User | null) => void
+  setAuthenticated: (isAuthenticated: boolean) => void
 
   // Generation
   selectedType: GenerationType
@@ -47,8 +63,11 @@ interface AppState {
 export const useStore = create<AppState>((set) => ({
   // User & Auth
   userId: null,
+  user: null,
   isAuthenticated: false,
-  setUserId: (id) => set({ userId: id, isAuthenticated: !!id }),
+  setUserId: (id) => set({ userId: id }),
+  setUser: (user) => set({ user, userId: user?.id || null }),
+  setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
 
   // Generation
   selectedType: GENERATION_TYPES[0],

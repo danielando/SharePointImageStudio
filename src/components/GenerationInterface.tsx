@@ -13,6 +13,7 @@ interface GenerationInterfaceProps {
 
 export default function GenerationInterface({ onGenerate, centered = false }: GenerationInterfaceProps) {
   const {
+    user,
     prompt,
     setPrompt,
     selectedType,
@@ -27,6 +28,11 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
     generations,
   } = useStore()
 
+  // Tier-based limits
+  const maxVariations = user?.subscription_tier === 'pro' ? 5 : user?.subscription_tier === 'basic' ? 3 : 1
+  const canUseImageReferences = user?.subscription_tier !== 'free'
+  const canUseAdvancedStyles = user?.subscription_tier !== 'free'
+
   const [isDragging, setIsDragging] = useState(false)
   const [showDimensionPicker, setShowDimensionPicker] = useState(false)
   const [showVariationsPicker, setShowVariationsPicker] = useState(false)
@@ -36,6 +42,11 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return
+
+    if (!canUseImageReferences) {
+      alert('Image references are only available for Basic and Pro tiers. Please upgrade to use this feature.')
+      return
+    }
 
     Array.from(files).forEach(file => {
       if (file.type.startsWith('image/')) {
@@ -188,20 +199,26 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
               </button>
             </div>
             <div className="flex items-center gap-2">
-              {[1, 2, 3, 4].map((count) => (
+              {[1, 2, 3, 4, 5].map((count) => (
                 <button
                   key={count}
+                  disabled={count > maxVariations}
                   onClick={() => {
-                    setVariationsCount(count)
-                    setShowVariationsPicker(false)
+                    if (count <= maxVariations) {
+                      setVariationsCount(count)
+                      setShowVariationsPicker(false)
+                    }
                   }}
                   className={`
                     px-4 py-2 rounded-lg text-sm font-medium transition-all
-                    ${variationsCount === count
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ${count > maxVariations
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-50'
+                      : variationsCount === count
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }
                   `}
+                  title={count > maxVariations ? `${count} variations requires ${count === 5 ? 'Pro' : 'Basic'} tier` : ''}
                 >
                   {count}
                 </button>
@@ -223,31 +240,41 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
               </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {IMAGE_STYLES.map((style) => (
-                <button
-                  key={style.id}
-                  onClick={() => {
-                    setSelectedStyle(style.id)
-                    setShowStylePicker(false)
-                  }}
-                  className={`
-                    flex flex-col items-start p-3 rounded-xl
-                    transition-all text-left
-                    ${selectedStyle === style.id
-                      ? 'bg-gray-100 border-2 border-gray-900'
-                      : 'border-2 border-gray-200 hover:border-gray-300'
-                    }
-                  `}
-                >
-                  <span className={`
-                    text-sm font-medium mb-1
-                    ${selectedStyle === style.id ? 'text-gray-900' : 'text-gray-700'}
-                  `}>
-                    {style.name}
-                  </span>
-                  <span className="text-xs text-gray-500">{style.description}</span>
-                </button>
-              ))}
+              {IMAGE_STYLES.map((style) => {
+                const isLocked = !canUseAdvancedStyles && style.id !== 'none'
+                return (
+                  <button
+                    key={style.id}
+                    disabled={isLocked}
+                    onClick={() => {
+                      if (!isLocked) {
+                        setSelectedStyle(style.id)
+                        setShowStylePicker(false)
+                      }
+                    }}
+                    className={`
+                      flex flex-col items-start p-3 rounded-xl
+                      transition-all text-left relative
+                      ${isLocked
+                        ? 'opacity-50 cursor-not-allowed border-2 border-gray-200'
+                        : selectedStyle === style.id
+                          ? 'bg-gray-100 border-2 border-gray-900'
+                          : 'border-2 border-gray-200 hover:border-gray-300'
+                      }
+                    `}
+                    title={isLocked ? 'Advanced styles require Basic or Pro tier' : ''}
+                  >
+                    <span className={`
+                      text-sm font-medium mb-1
+                      ${selectedStyle === style.id ? 'text-gray-900' : 'text-gray-700'}
+                    `}>
+                      {style.name}
+                      {isLocked && <span className="ml-1 text-xs">🔒</span>}
+                    </span>
+                    <span className="text-xs text-gray-500">{style.description}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
