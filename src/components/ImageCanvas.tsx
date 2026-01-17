@@ -113,7 +113,13 @@ export default function ImageCanvas() {
       {/* Grid - Masonry style */}
       {generations.length > 0 && (
         <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-            {generations.map((generation) => (
+            {generations.map((generation) => {
+              // Calculate aspect ratio from dimensions (e.g., "2560x720" -> 2560/720)
+              const [width, height] = generation.dimensions.split('x').map(Number)
+              const aspectRatio = width / height
+              const aspectRatioStyle = { aspectRatio: `${width}/${height}` }
+
+              return (
               <div
                 key={generation.id}
                 className="relative group cursor-pointer break-inside-avoid animate-fade-in"
@@ -123,7 +129,10 @@ export default function ImageCanvas() {
               >
             {/* Loading State */}
             {generation.status === 'generating' && (
-              <div className="aspect-video bg-gray-100 rounded-2xl flex items-center justify-center">
+              <div
+                className="bg-gray-100 rounded-2xl flex items-center justify-center"
+                style={aspectRatioStyle}
+              >
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-10 h-10 border-3 border-gray-300 border-t-gray-900 rounded-full animate-spin" />
                   <AnimatePresence mode="wait">
@@ -144,7 +153,10 @@ export default function ImageCanvas() {
 
             {/* Failed State */}
             {generation.status === 'failed' && (
-              <div className="aspect-video bg-red-50 border border-red-200 rounded-2xl flex items-center justify-center">
+              <div
+                className="bg-red-50 border border-red-200 rounded-2xl flex items-center justify-center"
+                style={aspectRatioStyle}
+              >
                 <p className="text-sm text-red-600">Generation failed</p>
               </div>
             )}
@@ -218,7 +230,8 @@ export default function ImageCanvas() {
               </>
             )}
               </div>
-            ))}
+              )
+            })}
         </div>
       )}
 
