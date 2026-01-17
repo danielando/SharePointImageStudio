@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react'
-import { Sparkles, Upload, X, Maximize2, Palette, Image as ImageIcon, Wand2 } from 'lucide-react'
+import { Sparkles, Upload, X, Maximize2, Palette, Image as ImageIcon, Wand2, Shuffle } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { GENERATION_TYPES } from '../types'
 import { ImageReference } from '../types'
 import { IMAGE_STYLES } from '../constants/imageStyles'
+import { getRandomPrompt } from '../constants/randomPrompts'
 
 interface GenerationInterfaceProps {
   onGenerate: () => void
@@ -311,6 +312,15 @@ export default function GenerationInterface({ onGenerate }: GenerationInterfaceP
               <button className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700">
                 <Wand2 className="w-4 h-4" />
                 <span>Style transfer</span>
+              </button>
+
+              {/* Random Prompt Button */}
+              <button
+                onClick={() => setPrompt(getRandomPrompt())}
+                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700"
+                title="Random prompt"
+              >
+                <Shuffle className="w-4 h-4" />
               </button>
 
               {/* Aspect Ratio */}
