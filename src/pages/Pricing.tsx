@@ -16,8 +16,6 @@ export default function Pricing() {
         'All SharePoint image types',
         'AI-powered image generation',
         'Standard resolution (2K)',
-        'Watermarked images',
-        'Personal use only',
       ]
     },
     {
@@ -31,8 +29,6 @@ export default function Pricing() {
       limit: '50 images / month',
       heading: 'Everything in Free plus:',
       features: [
-        'No watermarks',
-        'Commercial use allowed',
         'Advanced style options',
         'Image reference uploads',
         'Up to 3 variations per generation',
@@ -41,12 +37,12 @@ export default function Pricing() {
     {
       name: 'Pro',
       description: 'Higher resolution, more output, priority generation',
-      price: 79,
+      price: 49,
       period: '/mo',
       billingNote: 'billed monthly',
       buttonText: 'Get Pro',
       buttonStyle: 'bg-black hover:bg-gray-800 text-white',
-      limit: '250 images / month',
+      limit: '150 images / month',
       heading: 'Everything in Basic plus:',
       features: [
         'High resolution (4K) support',
@@ -54,7 +50,6 @@ export default function Pricing() {
         'Priority generation queue',
         'Custom brand elements',
         'SharePoint site integration',
-        'Overage protection (extra images: $0.25-0.45)',
       ]
     }
   ]
