@@ -49,7 +49,7 @@ export default function Pricing() {
         'Up to 5 variations per generation',
         'Priority generation queue',
         'Custom brand elements',
-        'SharePoint site integration',
+        'SharePoint site integration (coming soon)',
       ]
     }
   ]
