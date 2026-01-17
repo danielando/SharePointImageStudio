@@ -8,9 +8,10 @@ import { getRandomPrompt } from '../constants/randomPrompts'
 
 interface GenerationInterfaceProps {
   onGenerate: () => void
+  centered?: boolean
 }
 
-export default function GenerationInterface({ onGenerate }: GenerationInterfaceProps) {
+export default function GenerationInterface({ onGenerate, centered = false }: GenerationInterfaceProps) {
   const {
     prompt,
     setPrompt,
@@ -72,8 +73,8 @@ export default function GenerationInterface({ onGenerate }: GenerationInterfaceP
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-      <div className="max-w-4xl mx-auto px-6 py-6">
+    <div className={centered ? "w-full" : "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200"}>
+      <div className={`mx-auto px-6 ${centered ? 'w-full' : 'max-w-4xl py-6'}`}>
         {/* Image Reference Thumbnails */}
         {imageReferences.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
@@ -266,13 +267,13 @@ export default function GenerationInterface({ onGenerate }: GenerationInterfaceP
               onDragLeave={handleDragLeave}
               placeholder="Describe an image and click generate..."
               className={`
-                w-full px-1 py-2
+                w-full px-1
                 bg-transparent
                 border-none
                 text-gray-900 placeholder-gray-400
                 focus:outline-none
-                text-base
                 ${isDragging ? 'text-blue-600' : ''}
+                ${centered ? 'py-4 text-lg' : 'py-2 text-base'}
               `}
             />
           </div>

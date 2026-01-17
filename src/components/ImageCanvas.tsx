@@ -110,21 +110,9 @@ export default function ImageCanvas() {
 
   return (
     <div>
-      {/* Empty State */}
-      {generations.length === 0 ? (
-        <div className="flex items-center justify-center min-h-[70vh]">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-8 h-8 text-gray-400" />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Create Your First Image</h2>
-            <p className="text-gray-500 text-sm">Enter a prompt below to generate SharePoint images</p>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Grid - Masonry style */}
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+      {/* Grid - Masonry style */}
+      {generations.length > 0 && (
+        <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
             {generations.map((generation) => (
               <div
                 key={generation.id}
@@ -232,8 +220,7 @@ export default function ImageCanvas() {
             )}
               </div>
             ))}
-          </div>
-        </>
+        </div>
       )}
 
       {/* Full-Screen Preview Modal */}

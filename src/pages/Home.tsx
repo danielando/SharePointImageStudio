@@ -19,7 +19,10 @@ export default function Home() {
     imageReferences,
     addGeneration,
     updateGeneration,
+    generations,
   } = useStore()
+
+  const hasGenerations = generations.length > 0
 
   // Skip auth for now - set a temporary user ID
   useEffect(() => {
@@ -113,15 +116,29 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content - Images at top */}
-      <main className="flex-1 overflow-y-auto pb-32">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <ImageCanvas />
-        </div>
-      </main>
+      {/* Centered Layout - No generations yet */}
+      {!hasGenerations && (
+        <main className="flex-1 flex items-center justify-center px-6">
+          <div className="w-full max-w-4xl">
+            <h1 className="text-5xl font-bold text-gray-900 text-center mb-8">
+              SharePoint Image Studio
+            </h1>
+            <GenerationInterface onGenerate={handleGenerate} centered />
+          </div>
+        </main>
+      )}
 
-      {/* Generation Interface - Fixed at bottom */}
-      <GenerationInterface onGenerate={handleGenerate} />
+      {/* Bottom Layout - Has generations */}
+      {hasGenerations && (
+        <>
+          <main className="flex-1 overflow-y-auto pb-32">
+            <div className="max-w-7xl mx-auto px-6 py-6">
+              <ImageCanvas />
+            </div>
+          </main>
+          <GenerationInterface onGenerate={handleGenerate} />
+        </>
+      )}
 
       {/* Modals */}
       <ElementsModal />
