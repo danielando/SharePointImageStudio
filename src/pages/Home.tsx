@@ -7,6 +7,7 @@ import GenerationInterface from '../components/GenerationInterface'
 import ElementsModal from '../components/ElementsModal'
 import ImageCanvas from '../components/ImageCanvas'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 import SignInModal from '../components/SignInModal'
 import UpgradeModal from '../components/UpgradeModal'
 import { Generation } from '../types'
@@ -215,14 +216,17 @@ export default function Home() {
 
       {/* Centered Layout - No generations yet */}
       {!hasGenerations && (
-        <main className="flex-1 flex items-center justify-center px-6">
-          <div className="w-full max-w-4xl">
-            <h1 className="text-2xl font-medium text-gray-700 text-center mb-8">
-              What do you want to create today?
-            </h1>
-            <GenerationInterface onGenerate={handleGenerate} centered />
-          </div>
-        </main>
+        <>
+          <main className="flex-1 flex items-center justify-center px-6">
+            <div className="w-full max-w-4xl">
+              <h1 className="text-2xl font-medium text-gray-700 text-center mb-8">
+                What do you want to create today?
+              </h1>
+              <GenerationInterface onGenerate={handleGenerate} centered />
+            </div>
+          </main>
+          <Footer />
+        </>
       )}
 
       {/* Bottom Layout - Has generations */}

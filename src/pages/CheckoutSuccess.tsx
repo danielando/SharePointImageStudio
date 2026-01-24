@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle } from 'lucide-react'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 import { useStore } from '../store/useStore'
 
 export default function CheckoutSuccess() {
@@ -29,10 +30,10 @@ export default function CheckoutSuccess() {
   }, [navigate])
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header />
 
-      <div className="max-w-2xl mx-auto px-6 py-16 text-center">
+      <div className="flex-1 max-w-2xl mx-auto px-6 py-16 text-center">
         <div className="mb-8">
           <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -61,6 +62,8 @@ export default function CheckoutSuccess() {
           </button>
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }

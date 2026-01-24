@@ -4,6 +4,7 @@ import { useIsAuthenticated } from '@azure/msal-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Download, Trash2, ChevronLeft, ChevronRight, X, Copy, Image, Settings } from 'lucide-react'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 import { useStore } from '../store/useStore'
 import { supabase } from '../services/supabase'
 import { createCustomerPortalSession } from '../services/stripeService'
@@ -203,10 +204,10 @@ export default function Profile() {
   const currentTier = tierInfo[user.subscription_tier]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
 
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="flex-1 max-w-4xl mx-auto px-6 py-8 w-full">
         {/* User Card */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6">
           <div className="flex items-center justify-between">
@@ -406,6 +407,8 @@ export default function Profile() {
           )}
         </div>
       </div>
+
+      <Footer />
 
       {/* Full-Screen Preview Modal */}
       <AnimatePresence>

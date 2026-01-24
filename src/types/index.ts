@@ -12,10 +12,17 @@ export interface GenerationType {
 export const GENERATION_TYPES: GenerationType[] = [
   {
     id: 'hero',
-    name: 'Hero Web Part',
-    dimensions: { width: 2560, height: 720 },
-    aspectRatio: '16:3.2',
-    description: 'Full-width banner images for Hero sections'
+    name: 'Hero Web Part (Layers)',
+    dimensions: { width: 1920, height: 1080 },
+    aspectRatio: '16:9',
+    description: 'Full-width banner images for Hero Layers layout'
+  },
+  {
+    id: 'hero-tiles',
+    name: 'Hero Web Part (Tiles)',
+    dimensions: { width: 1600, height: 1200 },
+    aspectRatio: '4:3',
+    description: 'Images for Hero Tiles layout'
   },
   {
     id: 'page-header',
@@ -48,9 +55,9 @@ export const GENERATION_TYPES: GenerationType[] = [
   {
     id: 'team-banner',
     name: 'Team Site Banner',
-    dimensions: { width: 1920, height: 256 },
-    aspectRatio: '7.5:1',
-    description: 'Site header/banner images'
+    dimensions: { width: 2560, height: 164 },
+    aspectRatio: '15.6:1',
+    description: 'Site header background images'
   },
   {
     id: 'gallery',

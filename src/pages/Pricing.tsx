@@ -3,6 +3,7 @@ import { Check } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useIsAuthenticated } from '@azure/msal-react'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 import { useStore } from '../store/useStore'
 import { signIn } from '../services/authService'
 import { createCheckoutSession } from '../services/stripeService'
@@ -158,11 +159,11 @@ export default function Pricing() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header />
 
       {/* Pricing Content */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      <div className="flex-1 max-w-7xl mx-auto px-6 py-16">
         {/* Title Section */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-gray-900 mb-4">Pricing</h1>
@@ -255,6 +256,8 @@ export default function Pricing() {
           })}
         </div>
       </div>
+
+      <Footer />
     </div>
   )
 }
