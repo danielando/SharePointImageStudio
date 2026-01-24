@@ -2,6 +2,7 @@ import { PublicClientApplication } from '@azure/msal-browser'
 import { msalConfig, loginRequest, graphConfig } from '../config/authConfig'
 import { supabase } from './supabase'
 import { addSubscriberToConvertKit } from './convertkit'
+import { useStore } from '../store/useStore'
 
 export const msalInstance = new PublicClientApplication(msalConfig)
 
@@ -192,6 +193,9 @@ export const signOut = async () => {
       // This keeps the user logged into other Microsoft services
       await msalInstance.clearCache()
     }
+
+    // Reset the Zustand store to clear all user data
+    useStore.getState().resetStore()
 
     // Reload the page to reset app state
     window.location.href = '/'

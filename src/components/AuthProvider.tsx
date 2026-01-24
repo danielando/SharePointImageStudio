@@ -11,15 +11,15 @@ interface AuthProviderProps {
 
 // Helper to handle pending plan checkout after login
 const handlePendingPlanCheckout = async (user: any) => {
-  const pendingPlan = sessionStorage.getItem('pendingPlan')
+  const pendingPlan = localStorage.getItem('pendingPlan')
 
   if (!pendingPlan || pendingPlan === 'Free') {
-    sessionStorage.removeItem('pendingPlan')
+    localStorage.removeItem('pendingPlan')
     return
   }
 
   console.log('📦 Processing pending plan:', pendingPlan)
-  sessionStorage.removeItem('pendingPlan')
+  localStorage.removeItem('pendingPlan')
 
   try {
     const priceId = pendingPlan === 'Basic' ? STRIPE_PRICE_IDS.basic : STRIPE_PRICE_IDS.pro

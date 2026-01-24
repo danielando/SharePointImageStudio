@@ -45,11 +45,11 @@ export default function Home() {
       if (isAuthenticated && accounts.length > 0) {
         const account = accounts[0]
 
-        // Load user from Supabase
+        // Load user from Supabase (id = Azure AD homeAccountId)
         const { data: existingUser } = await supabase
           .from('users')
           .select('*')
-          .eq('azure_ad_id', account.homeAccountId)
+          .eq('id', account.homeAccountId)
           .single()
 
         if (existingUser) {
@@ -118,6 +118,35 @@ export default function Home() {
 
       ;(async () => {
         try {
+          // CRITICAL: Deduct credits BEFORE calling the API to prevent race conditions
+          console.log('💳 Decrementing credits for user:', user.id, 'Cost:', creditCostPerImage)
+          const { data: decrementSuccess, error: decrementError } = await supabase
+            .rpc('decrement_image_balance', {
+              p_user_id: user.id,
+              p_count: creditCostPerImage
+            })
+
+          if (decrementError) {
+            console.error('❌ Error decrementing balance:', decrementError)
+            updateGeneration(generationId, { status: 'failed' })
+            return
+          }
+
+          if (decrementSuccess === false) {
+            console.error('❌ Insufficient credits')
+            updateGeneration(generationId, { status: 'failed' })
+            return
+          }
+
+          console.log('✅ Balance decremented successfully')
+
+          // Update local user state optimistically
+          setUser({
+            ...user,
+            image_balance: Math.max(0, (user.image_balance ?? 0) - creditCostPerImage),
+            images_generated: (user.images_generated ?? 0) + 1
+          })
+
           // Apply style to prompt
           const styleConfig = IMAGE_STYLES.find(s => s.id === selectedStyle)
           const styledPrompt = styleConfig && styleConfig.prompt
@@ -133,23 +162,7 @@ export default function Home() {
             imageSize: selectedResolution,
           })
 
-          // Decrement credits based on resolution
-          console.log('💳 Decrementing credits for user:', user.id, 'Cost:', creditCostPerImage)
-          const { error: decrementError } = await supabase
-            .from('users')
-            .update({
-              image_balance: Math.max(0, (user.image_balance ?? 0) - creditCostPerImage),
-              images_generated: (user.images_generated ?? 0) + 1
-            })
-            .eq('id', user.id)
-
-          if (decrementError) {
-            console.error('❌ Error decrementing balance:', decrementError)
-          } else {
-            console.log('✅ Balance decremented successfully')
-          }
-
-          // Refresh user data
+          // Refresh user data to get accurate balance
           console.log('🔄 Fetching updated user data...')
           const { data: updatedUser, error: fetchError } = await supabase
             .from('users')
@@ -189,6 +202,8 @@ export default function Home() {
         } catch (error) {
           console.error('Generation failed:', error)
           updateGeneration(generationId, { status: 'failed' })
+          // Note: Credits are NOT refunded on failure - this prevents abuse
+          // Users can contact support for legitimate failures
         }
       })()
     }

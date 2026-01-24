@@ -30,8 +30,8 @@ export default function Pricing() {
 
       // Paid tiers - require authentication first
       if (!isAuthenticated || !user) {
-        // Store the intended plan for after login
-        sessionStorage.setItem('pendingPlan', planName)
+        // Store the intended plan for after login (localStorage persists across tabs/redirects)
+        localStorage.setItem('pendingPlan', planName)
         await signIn()
         return
       }

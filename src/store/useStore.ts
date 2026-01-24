@@ -31,6 +31,7 @@ interface AppState {
   setUserId: (id: string | null) => void
   setUser: (user: User | null) => void
   setAuthenticated: (isAuthenticated: boolean) => void
+  resetStore: () => void
 
   // Generation
   selectedType: GenerationType
@@ -71,6 +72,23 @@ interface AppState {
   setSelectedGeneration: (generation: Generation | null) => void
 }
 
+const initialState = {
+  userId: null,
+  user: null,
+  isAuthenticated: false,
+  selectedType: GENERATION_TYPES[0],
+  prompt: '',
+  variationsCount: 1,
+  selectedStyle: 'none',
+  selectedResolution: '2K' as Resolution,
+  imageReferences: [] as ImageReference[],
+  elements: [] as Element[],
+  generations: [] as Generation[],
+  showElementsModal: false,
+  editingElement: null,
+  selectedGeneration: null,
+}
+
 export const useStore = create<AppState>((set) => ({
   // User & Auth
   userId: null,
@@ -79,6 +97,7 @@ export const useStore = create<AppState>((set) => ({
   setUserId: (id) => set({ userId: id }),
   setUser: (user) => set({ user, userId: user?.id || null }),
   setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+  resetStore: () => set(initialState),
 
   // Generation
   selectedType: GENERATION_TYPES[0],
