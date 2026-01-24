@@ -28,9 +28,11 @@ interface AppState {
   userId: string | null
   user: User | null
   isAuthenticated: boolean
+  isProcessingCheckout: boolean
   setUserId: (id: string | null) => void
   setUser: (user: User | null) => void
   setAuthenticated: (isAuthenticated: boolean) => void
+  setProcessingCheckout: (isProcessing: boolean) => void
   resetStore: () => void
 
   // Generation
@@ -76,6 +78,7 @@ const initialState = {
   userId: null,
   user: null,
   isAuthenticated: false,
+  isProcessingCheckout: false,
   selectedType: GENERATION_TYPES[0],
   prompt: '',
   variationsCount: 1,
@@ -94,9 +97,11 @@ export const useStore = create<AppState>((set) => ({
   userId: null,
   user: null,
   isAuthenticated: false,
+  isProcessingCheckout: false,
   setUserId: (id) => set({ userId: id }),
   setUser: (user) => set({ user, userId: user?.id || null }),
   setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
+  setProcessingCheckout: (isProcessing) => set({ isProcessingCheckout: isProcessing }),
   resetStore: () => set(initialState),
 
   // Generation
