@@ -2,7 +2,6 @@
 // Adds new users to ConvertKit and tags them
 
 const CONVERTKIT_API_KEY = import.meta.env.VITE_CONVERTKIT_API_KEY
-const CONVERTKIT_API_SECRET = import.meta.env.VITE_CONVERTKIT_API_SECRET
 const CONVERTKIT_TAG_ID = import.meta.env.VITE_CONVERTKIT_TAG_ID || '14871194'
 
 interface SubscriberData {
@@ -39,7 +38,7 @@ export async function addSubscriberToConvertKit(data: SubscriberData): Promise<b
       return false
     }
 
-    const result = await response.json()
+    await response.json()
     console.log('✅ Successfully added subscriber to ConvertKit:', data.email)
     return true
   } catch (error) {

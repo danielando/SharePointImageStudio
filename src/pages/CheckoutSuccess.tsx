@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore'
 export default function CheckoutSuccess() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { user, setUser } = useStore()
+  const { user: _user } = useStore()
   const [countdown, setCountdown] = useState(10)
 
   const sessionId = searchParams.get('session_id')

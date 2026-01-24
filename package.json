@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@azure/msal-browser": "^5.0.2",
-    "@azure/msal-react": "^5.0.2",
+    "@azure/msal-browser": "^3.27.0",
+    "@azure/msal-react": "^2.1.1",
     "@stripe/stripe-js": "^8.6.1",
     "@supabase/supabase-js": "^2.39.3",
     "framer-motion": "^11.0.3",

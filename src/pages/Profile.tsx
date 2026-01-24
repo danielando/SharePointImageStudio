@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useIsAuthenticated } from '@azure/msal-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Download, Trash2, ChevronLeft, ChevronRight, X, Copy, Plus, Image } from 'lucide-react'
+import { Download, Trash2, ChevronLeft, ChevronRight, X, Copy, Image } from 'lucide-react'
 import Header from '../components/Header'
 import { useStore } from '../store/useStore'
 import { supabase } from '../services/supabase'
@@ -279,7 +279,7 @@ export default function Profile() {
                 className="px-4 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {generationTypes.map(type => (
-                  <option key={type} value={type}>
+                  <option key={type} value={type ?? ''}>
                     {type === 'all' ? 'All Types' : type}
                   </option>
                 ))}

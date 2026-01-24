@@ -51,7 +51,7 @@ export default function Pricing() {
       window.location.href = checkoutUrl
     } catch (error) {
       console.error('Error selecting plan:', error)
-      alert(`Failed to select plan: ${error.message}`)
+      alert(`Failed to select plan: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(null)
     }
@@ -72,9 +72,9 @@ export default function Pricing() {
     const currentTier = user.subscription_tier
     const planTier = planName.toLowerCase()
 
-    const tierRank = { free: 0, basic: 1, pro: 2 }
-    const currentRank = tierRank[currentTier]
-    const planRank = tierRank[planTier]
+    const tierRank: Record<string, number> = { free: 0, basic: 1, pro: 2 }
+    const currentRank = tierRank[currentTier] ?? 0
+    const planRank = tierRank[planTier] ?? 0
 
     // Current plan
     if (currentRank === planRank) {
