@@ -7,6 +7,11 @@ interface CreateCheckoutSessionParams {
   tier: 'basic' | 'pro'
 }
 
+interface CreatePortalSessionParams {
+  customerId: string
+  returnUrl?: string
+}
+
 export async function createCheckoutSession(params: CreateCheckoutSessionParams): Promise<string> {
   const { priceId, userId, userEmail, tier } = params
 
@@ -39,5 +44,36 @@ export async function createCheckoutSession(params: CreateCheckoutSessionParams)
   }
 
   console.log('Checkout URL received:', data.url)
+  return data.url
+}
+
+export async function createCustomerPortalSession(params: CreatePortalSessionParams): Promise<string> {
+  const { customerId, returnUrl } = params
+
+  console.log('Creating customer portal session:', { customerId })
+
+  const { data, error } = await supabase.functions.invoke('create-portal-session', {
+    body: {
+      customerId,
+      returnUrl: returnUrl || `${window.location.origin}/profile`,
+    },
+  })
+
+  if (error) {
+    console.error('Error creating portal session:', error)
+    throw new Error(`Failed to create portal session: ${error.message}`)
+  }
+
+  if (data?.error) {
+    console.error('Stripe error:', data.error)
+    throw new Error(`Stripe error: ${data.error}`)
+  }
+
+  if (!data?.url) {
+    console.error('No URL in response:', data)
+    throw new Error('No portal URL returned')
+  }
+
+  console.log('Portal URL received:', data.url)
   return data.url
 }

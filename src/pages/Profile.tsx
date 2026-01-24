@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useIsAuthenticated } from '@azure/msal-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Download, Trash2, ChevronLeft, ChevronRight, X, Copy, Image } from 'lucide-react'
+import { Download, Trash2, ChevronLeft, ChevronRight, X, Copy, Image, Settings } from 'lucide-react'
 import Header from '../components/Header'
 import { useStore } from '../store/useStore'
 import { supabase } from '../services/supabase'
+import { createCustomerPortalSession } from '../services/stripeService'
 
 interface ImageGeneration {
   id: string
@@ -26,6 +27,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState<ImageGeneration | null>(null)
   const [filterType, setFilterType] = useState<string>('all')
+  const [managingSubscription, setManagingSubscription] = useState(false)
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -154,6 +156,27 @@ export default function Profile() {
     setSelectedImage(filteredGenerations[newIndex])
   }
 
+  // Handle manage subscription (opens Stripe Customer Portal)
+  const handleManageSubscription = async () => {
+    if (!user?.stripe_customer_id) {
+      alert('No active subscription found. Please subscribe first.')
+      return
+    }
+
+    setManagingSubscription(true)
+    try {
+      const portalUrl = await createCustomerPortalSession({
+        customerId: user.stripe_customer_id,
+        returnUrl: window.location.href,
+      })
+      window.location.href = portalUrl
+    } catch (error) {
+      console.error('Error opening subscription portal:', error)
+      alert('Failed to open subscription management. Please try again.')
+      setManagingSubscription(false)
+    }
+  }
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -198,17 +221,21 @@ export default function Profile() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {user.subscription_tier !== 'free' && user.stripe_customer_id && (
+                <button
+                  onClick={handleManageSubscription}
+                  disabled={managingSubscription}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  <Settings className="w-4 h-4" />
+                  {managingSubscription ? 'Loading...' : 'Manage Subscription'}
+                </button>
+              )}
               <button
                 onClick={() => navigate('/pricing')}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-full hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-full transition-colors"
               >
-                Manage Plan
-              </button>
-              <button
-                onClick={() => navigate('/pricing')}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                <span className="text-lg">⊕</span> Upgrade Now
+                <span className="text-lg">⊕</span> {user.subscription_tier === 'free' ? 'Upgrade Now' : 'Change Plan'}
               </button>
             </div>
           </div>

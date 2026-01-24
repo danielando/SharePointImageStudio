@@ -145,6 +145,64 @@ serve(async (req) => {
     console.log('Subscription updated successfully:', data)
   }
 
+  // Handle subscription cancellation (when subscription period ends after cancel)
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object as Stripe.Subscription
+    const customerId = subscription.customer as string
+
+    console.log('Subscription deleted:')
+    console.log('  - Customer ID:', customerId)
+
+    // Find user by Stripe customer ID and downgrade to free
+    const { data: users, error: findError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('stripe_customer_id', customerId)
+
+    if (findError) {
+      console.error('Error finding user:', findError)
+    } else if (users && users.length > 0) {
+      const userId = users[0].id
+      console.log('Downgrading user to free tier:', userId)
+
+      // Downgrade to free tier (keeps existing balance, but stops monthly allocation)
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          subscription_tier: 'free',
+          monthly_allocation: 0,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId)
+
+      if (updateError) {
+        console.error('Error downgrading user:', updateError)
+      } else {
+        console.log('User downgraded to free tier successfully')
+      }
+    } else {
+      console.log('No user found with customer ID:', customerId)
+    }
+  }
+
+  // Handle subscription update (plan change, renewal, etc.)
+  if (event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object as Stripe.Subscription
+    const customerId = subscription.customer as string
+    const status = subscription.status
+
+    console.log('Subscription updated:')
+    console.log('  - Customer ID:', customerId)
+    console.log('  - Status:', status)
+    console.log('  - Cancel at period end:', subscription.cancel_at_period_end)
+
+    // If subscription is set to cancel at period end, we can optionally notify the user
+    // but we don't downgrade until it actually ends (handled by customer.subscription.deleted)
+    if (subscription.cancel_at_period_end) {
+      console.log('Subscription will cancel at:', new Date(subscription.current_period_end * 1000).toISOString())
+    }
+  }
+
   // Return success
   return new Response(
     JSON.stringify({ received: true }),
