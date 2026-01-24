@@ -1,6 +1,7 @@
 import { PublicClientApplication } from '@azure/msal-browser'
 import { msalConfig, loginRequest, graphConfig } from '../config/authConfig'
 import { supabase } from './supabase'
+import { addSubscriberToConvertKit } from './convertkit'
 
 export const msalInstance = new PublicClientApplication(msalConfig)
 
@@ -24,76 +25,176 @@ export const getUserProfile = async (accessToken: string) => {
   return response.json()
 }
 
-// Sign in and create/update user in Supabase
-export const signIn = async () => {
+// Attempt silent SSO sign-in (if user is already logged into M365 in browser)
+export const attemptSilentSignIn = async () => {
   try {
-    const loginResponse = await msalInstance.loginPopup(loginRequest)
-    const account = loginResponse.account
+    // Try to get account from cache
+    const accounts = msalInstance.getAllAccounts()
 
-    if (!account) {
-      throw new Error('No account found')
+    if (accounts.length === 0) {
+      // No cached account, try SSO silent
+      const ssoRequest = {
+        ...loginRequest,
+        prompt: 'none', // Don't show UI - fail silently if not logged in
+      }
+
+      try {
+        const ssoResponse = await msalInstance.ssoSilent(ssoRequest)
+        if (ssoResponse?.account) {
+          // Successfully got SSO login, now create/update user in Supabase
+          return await createOrUpdateUser(ssoResponse.account, ssoResponse.accessToken)
+        }
+      } catch (ssoError: any) {
+        // SSO silent failed - user not logged into M365, that's OK
+        console.log('SSO silent sign-in not available:', ssoError.errorCode)
+        return null
+      }
+    } else {
+      // Account exists in cache, get fresh token and user data
+      const account = accounts[0]
+      try {
+        const tokenResponse = await msalInstance.acquireTokenSilent({
+          ...loginRequest,
+          account,
+        })
+        return await createOrUpdateUser(account, tokenResponse.accessToken)
+      } catch (error) {
+        console.error('Error acquiring token silently:', error)
+        return null
+      }
     }
 
-    // Get access token for Microsoft Graph
-    const tokenResponse = await msalInstance.acquireTokenSilent({
-      ...loginRequest,
-      account,
-    })
+    return null
+  } catch (error) {
+    console.error('Silent sign-in error:', error)
+    return null
+  }
+}
 
+// Helper function to create or update user in Supabase
+const createOrUpdateUser = async (account: any, accessToken: string) => {
+  try {
     // Get user profile from Microsoft Graph
-    const profile = await getUserProfile(tokenResponse.accessToken)
+    const profile = await getUserProfile(accessToken)
 
     // Create or update user in Supabase
-    const { data: existingUser } = await supabase
+    const { data: existingUsers, error: fetchError } = await supabase
       .from('users')
       .select('*')
-      .eq('azure_ad_id', account.homeAccountId)
-      .single()
+      .eq('id', account.homeAccountId)
+
+    if (fetchError) {
+      console.error('Error fetching user:', fetchError)
+      throw fetchError
+    }
+
+    const existingUser = existingUsers && existingUsers.length > 0 ? existingUsers[0] : null
 
     if (!existingUser) {
-      // Create new user with Free tier
+      // Create new user with Free tier (2 one-time images, no monthly allocation)
       const { data: newUser, error } = await supabase
         .from('users')
         .insert({
-          azure_ad_id: account.homeAccountId,
+          id: account.homeAccountId,
           email: account.username,
-          display_name: profile.displayName || account.name,
+          name: profile.displayName || account.name,
           subscription_tier: 'free',
-          monthly_image_limit: 3,
-          monthly_images_used: 0,
-          billing_period_start: new Date().toISOString(),
-          billing_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+          images_generated: 0,
+          image_balance: 2,  // Free tier gets 2 one-time images
+          monthly_allocation: 0,  // No monthly allocation for free tier
+          bonus_images: 0,
         })
         .select()
         .single()
 
       if (error) {
+        // If the error is duplicate key, try to fetch the user again
+        if (error.code === '23505') {
+          const { data: retryUser } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', account.homeAccountId)
+            .single()
+
+          if (retryUser) {
+            return { user: retryUser, account, profile }
+          }
+        }
+
         console.error('Error creating user:', error)
         throw error
       }
 
+      // Add new user to ConvertKit with tag (non-blocking)
+      addSubscriberToConvertKit({
+        email: account.username,
+        firstName: profile.displayName?.split(' ')[0] || undefined,
+      }).catch(err => console.error('ConvertKit subscription failed:', err))
+
       return { user: newUser, account, profile }
     }
 
-    // Update existing user's display name if changed
-    if (existingUser.display_name !== profile.displayName) {
+    // Update existing user's name if changed
+    if (existingUser.name !== profile.displayName) {
       await supabase
         .from('users')
-        .update({ display_name: profile.displayName })
+        .update({ name: profile.displayName })
         .eq('id', existingUser.id)
     }
 
     return { user: existingUser, account, profile }
+  } catch (error) {
+    console.error('Error creating/updating user:', error)
+    throw error
+  }
+}
+
+// Sign in with redirect (when user explicitly clicks login or SSO fails)
+export const signIn = async () => {
+  try {
+    const loginResponse = await msalInstance.loginRedirect(loginRequest)
+    return loginResponse
   } catch (error) {
     console.error('Sign in error:', error)
     throw error
   }
 }
 
-// Sign out
+// Handle redirect after login
+export const handleRedirectPromise = async () => {
+  try {
+    const loginResponse = await msalInstance.handleRedirectPromise()
+
+    if (!loginResponse || !loginResponse.account) {
+      return null
+    }
+
+    // Get access token and create/update user in Supabase
+    const tokenResponse = await msalInstance.acquireTokenSilent({
+      ...loginRequest,
+      account: loginResponse.account,
+    })
+
+    return await createOrUpdateUser(loginResponse.account, tokenResponse.accessToken)
+  } catch (error) {
+    console.error('Handle redirect error:', error)
+    throw error
+  }
+}
+
+// Sign out (app-only - doesn't sign out of Microsoft 365)
 export const signOut = async () => {
   try {
-    await msalInstance.logoutPopup()
+    const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0]
+
+    if (account) {
+      // Clear the account from MSAL cache without redirecting to Microsoft logout
+      // This keeps the user logged into other Microsoft services
+      await msalInstance.clearCache()
+    }
+
+    // Reload the page to reset app state
+    window.location.href = '/'
   } catch (error) {
     console.error('Sign out error:', error)
     throw error

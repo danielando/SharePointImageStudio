@@ -1,13 +1,14 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useIsAuthenticated, useMsal } from '@azure/msal-react'
-import { useStore } from '../store/useStore'
+import { useStore, RESOLUTION_OPTIONS } from '../store/useStore'
 import { generateImage, uploadImageReference } from '../services/nanoBanana'
-import { signIn } from '../services/authService'
 import { supabase } from '../services/supabase'
 import GenerationInterface from '../components/GenerationInterface'
 import ElementsModal from '../components/ElementsModal'
 import ImageCanvas from '../components/ImageCanvas'
 import Header from '../components/Header'
+import SignInModal from '../components/SignInModal'
+import UpgradeModal from '../components/UpgradeModal'
 import { Generation } from '../types'
 import { IMAGE_STYLES } from '../constants/imageStyles'
 
@@ -22,13 +23,21 @@ export default function Home() {
     prompt,
     variationsCount,
     selectedStyle,
+    selectedResolution,
     imageReferences,
     addGeneration,
     updateGeneration,
     generations,
   } = useStore()
 
+  // Calculate credit cost based on resolution and variations
+  const resolutionOption = RESOLUTION_OPTIONS.find(r => r.id === selectedResolution) || RESOLUTION_OPTIONS[1]
+  const creditCostPerImage = resolutionOption.creditCost
+  const totalCreditCost = creditCostPerImage * variationsCount
+
   const hasGenerations = generations.length > 0
+  const [showSignInModal, setShowSignInModal] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   // Load user data when authenticated
   useEffect(() => {
@@ -58,18 +67,25 @@ export default function Home() {
 
     // Check if user is authenticated
     if (!isAuthenticated || !user) {
-      alert('Please sign in to generate images')
-      await signIn()
+      setShowSignInModal(true)
       return
     }
 
-    // Check usage limits
-    const { data: usageCheck } = await supabase
-      .rpc('check_and_reset_monthly_usage', { p_user_id: user.id })
-      .single()
+    // Check credit balance
+    const currentBalance = user.image_balance ?? 0
 
-    if (!usageCheck?.can_generate) {
-      alert(`You've reached your monthly limit of ${user.monthly_image_limit} images. Please upgrade your plan.`)
+    console.log('🔍 Balance check:', {
+      tier: user.subscription_tier,
+      balance: currentBalance,
+      monthlyAllocation: user.monthly_allocation,
+      resolution: selectedResolution,
+      creditCostPerImage,
+      totalCreditCost
+    })
+
+    // Check if user has enough credits for the total cost
+    if (currentBalance < totalCreditCost) {
+      setShowUpgradeModal(true)
       return
     }
 
@@ -108,28 +124,62 @@ export default function Home() {
             ? `${prompt}. ${styleConfig.prompt}`
             : prompt
 
+          // Use user-selected resolution
           const imageUrl = await generateImage({
             prompt: styledPrompt,
             width: selectedType.dimensions.width,
             height: selectedType.dimensions.height,
             imageReferences: imageRefs.length > 0 ? imageRefs : undefined,
+            imageSize: selectedResolution,
           })
 
-          // Increment usage counter
-          await supabase.rpc('increment_user_usage', {
-            p_user_id: user.id,
-            p_credits_used: 1,
-          })
+          // Decrement credits based on resolution
+          console.log('💳 Decrementing credits for user:', user.id, 'Cost:', creditCostPerImage)
+          const { error: decrementError } = await supabase
+            .from('users')
+            .update({
+              image_balance: Math.max(0, (user.image_balance ?? 0) - creditCostPerImage),
+              images_generated: (user.images_generated ?? 0) + 1
+            })
+            .eq('id', user.id)
+
+          if (decrementError) {
+            console.error('❌ Error decrementing balance:', decrementError)
+          } else {
+            console.log('✅ Balance decremented successfully')
+          }
 
           // Refresh user data
-          const { data: updatedUser } = await supabase
+          console.log('🔄 Fetching updated user data...')
+          const { data: updatedUser, error: fetchError } = await supabase
             .from('users')
             .select('*')
             .eq('id', user.id)
             .single()
 
-          if (updatedUser) {
+          if (fetchError) {
+            console.error('❌ Error fetching updated user:', fetchError)
+          } else if (updatedUser) {
+            console.log('✅ Updated user data:', updatedUser)
             setUser(updatedUser)
+          }
+
+          // Save to database for profile gallery
+          const { error: saveError } = await supabase
+            .from('image_generations')
+            .insert({
+              user_id: user.id,
+              prompt: styledPrompt,
+              image_url: imageUrl,
+              status: 'completed',
+              generation_type: selectedType.name,
+              dimensions: `${selectedType.dimensions.width}x${selectedType.dimensions.height}`,
+            })
+
+          if (saveError) {
+            console.error('❌ Error saving generation to database:', saveError)
+          } else {
+            console.log('✅ Generation saved to database')
           }
 
           updateGeneration(generationId, {
@@ -152,8 +202,8 @@ export default function Home() {
       {!hasGenerations && (
         <main className="flex-1 flex items-center justify-center px-6">
           <div className="w-full max-w-4xl">
-            <h1 className="text-5xl font-bold text-gray-900 text-center mb-8">
-              SharePoint Image Studio
+            <h1 className="text-2xl font-medium text-gray-700 text-center mb-8">
+              What do you want to create today?
             </h1>
             <GenerationInterface onGenerate={handleGenerate} centered />
           </div>
@@ -174,6 +224,15 @@ export default function Home() {
 
       {/* Modals */}
       <ElementsModal />
+      <SignInModal
+        isOpen={showSignInModal}
+        onClose={() => setShowSignInModal(false)}
+        prompt={prompt}
+      />
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+      />
     </div>
   )
 }

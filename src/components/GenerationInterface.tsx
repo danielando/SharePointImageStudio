@@ -1,10 +1,64 @@
 import { useState, useRef } from 'react'
-import { Sparkles, X, Maximize2, Palette, Image as ImageIcon, Shuffle } from 'lucide-react'
-import { useStore } from '../store/useStore'
+import { Sparkles, X, Maximize2, Palette, Image as ImageIcon, Shuffle, ChevronLeft, ChevronRight, Monitor } from 'lucide-react'
+import { useStore, RESOLUTION_OPTIONS } from '../store/useStore'
 import { GENERATION_TYPES } from '../types'
 import { ImageReference } from '../types'
 import { IMAGE_STYLES } from '../constants/imageStyles'
 import { getRandomPrompt } from '../constants/randomPrompts'
+
+// Example prompts with thumbnail images (16:9 aspect ratio for wider cards)
+const EXAMPLE_PROMPTS = [
+  {
+    id: '1',
+    prompt: 'Modern office building with glass facade at golden hour',
+    thumbnail: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=320&h=180&fit=crop'
+  },
+  {
+    id: '2',
+    prompt: 'Team collaboration in a bright meeting room',
+    thumbnail: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=320&h=180&fit=crop'
+  },
+  {
+    id: '3',
+    prompt: 'Colorful betta fish swimming in blue water',
+    thumbnail: 'https://images.unsplash.com/photo-1520302519878-3935cfe673bb?w=320&h=180&fit=crop'
+  },
+  {
+    id: '4',
+    prompt: 'Pink dinosaur toy with knitted sweater',
+    thumbnail: 'https://images.unsplash.com/photo-1563170423-4d631ae42e1c?w=320&h=180&fit=crop'
+  },
+  {
+    id: '5',
+    prompt: 'Nature landscape with mountains and lake',
+    thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=320&h=180&fit=crop'
+  },
+  {
+    id: '6',
+    prompt: 'Majestic tree on a hillside with dramatic sky',
+    thumbnail: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=320&h=180&fit=crop'
+  },
+  {
+    id: '7',
+    prompt: 'Off-road vehicle driving through mud and dirt',
+    thumbnail: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=320&h=180&fit=crop'
+  },
+  {
+    id: '8',
+    prompt: 'Close-up portrait of a snowy owl',
+    thumbnail: 'https://images.unsplash.com/photo-1543549790-8b5f4a028cfb?w=320&h=180&fit=crop'
+  },
+  {
+    id: '9',
+    prompt: 'Retro purple sports car in neon lighting',
+    thumbnail: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=320&h=180&fit=crop'
+  },
+  {
+    id: '10',
+    prompt: 'Eagle with spread wings against sky',
+    thumbnail: 'https://images.unsplash.com/photo-1611689342806-0863700ce1e4?w=320&h=180&fit=crop'
+  },
+]
 
 interface GenerationInterfaceProps {
   onGenerate: () => void
@@ -22,6 +76,8 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
     setVariationsCount,
     selectedStyle,
     setSelectedStyle,
+    selectedResolution,
+    setSelectedResolution,
     imageReferences,
     addImageReference,
     removeImageReference,
@@ -37,8 +93,28 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
   const [showDimensionPicker, setShowDimensionPicker] = useState(false)
   const [showVariationsPicker, setShowVariationsPicker] = useState(false)
   const [showStylePicker, setShowStylePicker] = useState(false)
+  const [showResolutionPicker, setShowResolutionPicker] = useState(false)
+
+  // Get credit cost for current resolution
+  const currentResolutionOption = RESOLUTION_OPTIONS.find(r => r.id === selectedResolution) || RESOLUTION_OPTIONS[1]
+  const creditCost = currentResolutionOption.creditCost * variationsCount
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const examplesScrollRef = useRef<HTMLDivElement>(null)
+
+  const scrollExamples = (direction: 'left' | 'right') => {
+    if (examplesScrollRef.current) {
+      const scrollAmount = 220
+      examplesScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      })
+    }
+  }
+
+  const handleExampleClick = (examplePrompt: string) => {
+    setPrompt(examplePrompt)
+  }
 
   const handleFileUpload = (files: FileList | null) => {
     if (!files) return
@@ -85,7 +161,7 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
 
   return (
     <div className={centered ? "w-full" : "fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200"}>
-      <div className={`mx-auto px-6 ${centered ? 'w-full' : 'max-w-4xl py-6'}`}>
+      <div className={`mx-auto px-4 sm:px-6 ${centered ? 'w-full' : 'max-w-4xl py-4 sm:py-6'}`}>
         {/* Image Reference Thumbnails */}
         {imageReferences.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
@@ -279,10 +355,53 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
           </div>
         )}
 
+        {/* Resolution Picker Panel */}
+        {showResolutionPicker && (
+          <div className="mb-4 bg-white border border-gray-200 rounded-2xl p-4 shadow-lg">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-gray-900">Resolution</h3>
+              <button
+                onClick={() => setShowResolutionPicker(false)}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-4 h-4 text-gray-500" />
+              </button>
+            </div>
+            <div className="space-y-2">
+              {RESOLUTION_OPTIONS.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => {
+                    setSelectedResolution(option.id)
+                    setShowResolutionPicker(false)
+                  }}
+                  className={`
+                    w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all
+                    ${selectedResolution === option.id
+                      ? 'bg-gray-100 border-2 border-gray-900'
+                      : 'border-2 border-gray-200 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <span className={`font-medium ${selectedResolution === option.id ? 'text-gray-900' : 'text-gray-700'}`}>
+                    {option.label}
+                  </span>
+                  <span className={`text-sm ${selectedResolution === option.id ? 'text-gray-700' : 'text-gray-500'}`}>
+                    {option.creditCost === 0.5 ? '½' : option.creditCost} credit{option.creditCost !== 1 ? 's' : ''}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-gray-500">
+              Higher resolution = better quality for large displays
+            </p>
+          </div>
+        )}
+
         {/* Main Prompt Box */}
-        <div className="bg-gray-50 rounded-3xl border border-gray-200 p-4">
+        <div className="bg-gray-50 rounded-2xl sm:rounded-3xl border border-gray-200 p-3 sm:p-4">
           {/* Top Row - Prompt Input */}
-          <div className="mb-3">
+          <div className="mb-2 sm:mb-3">
             <input
               ref={textareaRef as any}
               type="text"
@@ -292,7 +411,7 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
-              placeholder="Describe an image and click generate..."
+              placeholder="Describe an image..."
               className={`
                 w-full px-1
                 bg-transparent
@@ -300,31 +419,31 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
                 text-gray-900 placeholder-gray-400
                 focus:outline-none
                 ${isDragging ? 'text-blue-600' : ''}
-                ${centered ? 'py-4 text-lg' : 'py-2 text-base'}
+                ${centered ? 'py-3 sm:py-4 text-base sm:text-lg' : 'py-2 text-base'}
               `}
             />
           </div>
 
           {/* Bottom Row - Controls */}
-          <div className="flex items-center justify-between">
-            {/* Left Side - Option Buttons */}
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-2">
+            {/* Left Side - Option Buttons (scrollable on mobile) */}
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-hide flex-1 min-w-0">
               {/* Style Button */}
               <button
                 onClick={() => setShowStylePicker(!showStylePicker)}
-                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700 flex-shrink-0"
               >
                 <Palette className="w-4 h-4" />
-                <span>{IMAGE_STYLES.find(s => s.id === selectedStyle)?.name || 'Style'}</span>
+                <span className="hidden sm:inline">{IMAGE_STYLES.find(s => s.id === selectedStyle)?.name || 'Style'}</span>
               </button>
 
               {/* Reference Image Button */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700 flex-shrink-0"
               >
                 <ImageIcon className="w-4 h-4" />
-                <span>Reference image</span>
+                <span className="hidden sm:inline">Reference</span>
               </button>
 
               <input
@@ -339,7 +458,7 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
               {/* Random Prompt Button */}
               <button
                 onClick={() => setPrompt(getRandomPrompt())}
-                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700 flex-shrink-0"
                 title="Random prompt"
               >
                 <Shuffle className="w-4 h-4" />
@@ -348,36 +467,54 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
               {/* Aspect Ratio */}
               <button
                 onClick={() => setShowDimensionPicker(!showDimensionPicker)}
-                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700"
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700 flex-shrink-0"
               >
                 <Maximize2 className="w-4 h-4" />
-                <span>{selectedType.name}</span>
+                <span className="text-xs sm:text-sm">{selectedType.name}</span>
               </button>
 
-              {/* Variations Count */}
+              {/* Resolution */}
               <button
-                onClick={() => setShowVariationsPicker(!showVariationsPicker)}
-                className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700"
+                onClick={() => setShowResolutionPicker(!showResolutionPicker)}
+                className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700 flex-shrink-0"
               >
-                <span className="font-medium">{variationsCount}x</span>
+                <Monitor className="w-4 h-4" />
+                <span className="text-xs sm:text-sm">{selectedResolution}</span>
               </button>
+
+              {/* Variations Count - hide on mobile for free users */}
+              {(user?.subscription_tier !== 'free' || !user) && (
+                <button
+                  onClick={() => setShowVariationsPicker(!showVariationsPicker)}
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 hover:bg-gray-100 rounded-full transition-colors text-sm text-gray-700 flex-shrink-0"
+                >
+                  <span className="font-medium text-xs sm:text-sm">{variationsCount}x</span>
+                </button>
+              )}
             </div>
 
-            {/* Right Side - Generate Button */}
-            <button
-              onClick={onGenerate}
-              disabled={!prompt.trim()}
-              className="
-                p-2.5 rounded-full
-                bg-black hover:bg-gray-800
-                text-white
-                disabled:opacity-30 disabled:cursor-not-allowed
-                transition-all
-              "
-              title="Generate"
-            >
-              <Sparkles className="w-5 h-5" />
-            </button>
+            {/* Right Side - Generate Button with credit cost */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {user && (
+                <span className="text-xs text-gray-500 hidden sm:inline">
+                  {creditCost === 0.5 ? '½' : creditCost} cr
+                </span>
+              )}
+              <button
+                onClick={onGenerate}
+                disabled={!prompt.trim()}
+                className="
+                  p-2 sm:p-2.5 rounded-full
+                  bg-black hover:bg-gray-800
+                  text-white
+                  disabled:opacity-30 disabled:cursor-not-allowed
+                  transition-all
+                "
+                title="Generate"
+              >
+                <Sparkles className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -389,6 +526,65 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
           </div>
         )}
       </div>
+
+      {/* Example Prompts Carousel - Only show when centered (no generations yet) */}
+      {centered && (
+        <div className="fixed bottom-0 left-0 right-0 pb-3 sm:pb-4">
+          <p className="text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 px-4 sm:px-6">Get inspired for your next SharePoint page</p>
+          <div className="relative">
+            {/* Scroll Left Button - Hidden on mobile */}
+            <button
+              onClick={() => scrollExamples('left')}
+              className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg items-center justify-center hover:bg-white transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-700" />
+            </button>
+
+            {/* Scrollable Container - Full width edge to edge */}
+            <div
+              ref={examplesScrollRef}
+              className="flex gap-2 overflow-x-auto scrollbar-hide px-4 sm:pl-4"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {EXAMPLE_PROMPTS.map((example, index) => (
+                <button
+                  key={example.id}
+                  onClick={() => handleExampleClick(example.prompt)}
+                  className="flex-shrink-0 group relative rounded-xl sm:rounded-2xl overflow-hidden transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    width: 'clamp(140px, 30vw, 180px)',
+                    height: 'clamp(80px, 17vw, 100px)',
+                    marginRight: index === EXAMPLE_PROMPTS.length - 1 ? '16px' : '0'
+                  }}
+                >
+                  <img
+                    src={example.thumbnail}
+                    alt={example.prompt}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to a gradient if image fails to load
+                      e.currentTarget.style.display = 'none'
+                      e.currentTarget.parentElement!.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                    }}
+                  />
+                  {/* Hover overlay with prompt text - always visible on mobile tap */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 transition-opacity flex items-end p-2 sm:p-3">
+                    <p className="text-white text-[10px] sm:text-xs line-clamp-2 sm:line-clamp-3">{example.prompt}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Scroll Right Button - Hidden on mobile */}
+            <button
+              onClick={() => scrollExamples('right')}
+              className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg items-center justify-center hover:bg-white transition-colors"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-700" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

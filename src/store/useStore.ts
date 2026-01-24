@@ -1,17 +1,26 @@
 import { create } from 'zustand'
 import { Element, Generation, ImageReference, GenerationType, GENERATION_TYPES } from '../types'
 
+// Resolution options with credit costs
+export type Resolution = '1K' | '2K' | '4K'
+export const RESOLUTION_OPTIONS: { id: Resolution; label: string; creditCost: number }[] = [
+  { id: '1K', label: '1K', creditCost: 0.5 },
+  { id: '2K', label: '2K', creditCost: 1 },
+  { id: '4K', label: '4K', creditCost: 2 },
+]
+
 interface User {
-  id: string
-  azure_ad_id: string
+  id: string // Azure AD homeAccountId
   email: string
-  display_name: string
+  name: string | null
   subscription_tier: 'free' | 'basic' | 'pro'
-  monthly_image_limit: number
-  monthly_images_used: number
-  billing_period_start: string
-  billing_period_end: string
-  stripe_customer_id?: string
+  images_generated: number // Total lifetime images generated
+  image_balance: number // Current available balance (accumulates monthly)
+  monthly_allocation: number // Images added per month based on tier
+  bonus_images: number // Total bonus images purchased
+  stripe_customer_id: string | null
+  created_at: string
+  updated_at: string
 }
 
 interface AppState {
@@ -32,6 +41,8 @@ interface AppState {
   setVariationsCount: (count: number) => void
   selectedStyle: string
   setSelectedStyle: (style: string) => void
+  selectedResolution: Resolution
+  setSelectedResolution: (resolution: Resolution) => void
   imageReferences: ImageReference[]
   addImageReference: (ref: ImageReference) => void
   removeImageReference: (id: string) => void
@@ -78,6 +89,8 @@ export const useStore = create<AppState>((set) => ({
   setVariationsCount: (count) => set({ variationsCount: count }),
   selectedStyle: 'none',
   setSelectedStyle: (style) => set({ selectedStyle: style }),
+  selectedResolution: '2K',
+  setSelectedResolution: (resolution) => set({ selectedResolution: resolution }),
   imageReferences: [],
   addImageReference: (ref) => set((state) => ({
     imageReferences: [...state.imageReferences, ref]

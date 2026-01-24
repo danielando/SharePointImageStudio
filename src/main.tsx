@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import AuthProvider from './components/AuthProvider.tsx'
 import Home from './pages/Home.tsx'
 import Pricing from './pages/Pricing.tsx'
+import Profile from './pages/Profile.tsx'
+import CheckoutSuccess from './pages/CheckoutSuccess.tsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -13,6 +15,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
