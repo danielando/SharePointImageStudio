@@ -20,13 +20,13 @@ const EXAMPLE_PROMPTS = [
   },
   {
     id: '3',
-    prompt: 'Colorful betta fish swimming in blue water',
-    thumbnail: 'https://images.unsplash.com/photo-1520302519878-3935cfe673bb?w=320&h=180&fit=crop'
+    prompt: 'Abstract colorful fluid art background',
+    thumbnail: 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?w=320&h=180&fit=crop'
   },
   {
     id: '4',
-    prompt: 'Pink dinosaur toy with knitted sweater',
-    thumbnail: 'https://images.unsplash.com/photo-1563170423-4d631ae42e1c?w=320&h=180&fit=crop'
+    prompt: 'Professional workspace with laptop and coffee',
+    thumbnail: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=320&h=180&fit=crop'
   },
   {
     id: '5',
