@@ -30,12 +30,12 @@ export default function Footer() {
             >
               Privacy Policy
             </Link>
-            <a
-              href="mailto:support@sharepointimagestudio.com"
+            <Link
+              to="/contact"
               className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
             >
               Contact
-            </a>
+            </Link>
           </nav>
         </div>
       </div>

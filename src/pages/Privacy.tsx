@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 
@@ -98,7 +99,7 @@ export default function Privacy() {
 
             <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">Personal Data of Children</h2>
             <p className="text-gray-600 mb-4">
-              We do not knowingly collect or solicit Personal Data from children under 18 years of age. If you are under 18, please do not attempt to register for or use the Services. If we learn we have collected Personal Data from a child under 18, we will delete that information as quickly as possible. If you believe that a child under 18 may have provided Personal Data to us, please contact us at support@sharepointimagestudio.com.
+              We do not knowingly collect or solicit Personal Data from children under 18 years of age. If you are under 18, please do not attempt to register for or use the Services. If we learn we have collected Personal Data from a child under 18, we will delete that information as quickly as possible. If you believe that a child under 18 may have provided Personal Data to us, please <Link to="/contact" className="text-blue-600 hover:text-blue-800 underline">contact us</Link>.
             </p>
 
             <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">Your Privacy Rights</h2>
@@ -112,7 +113,7 @@ export default function Privacy() {
               <li><strong>Portability:</strong> Request a copy of your Personal Data in a machine-readable format</li>
             </ul>
             <p className="text-gray-600 mb-4">
-              To exercise any of these rights, please contact us at support@sharepointimagestudio.com.
+              To exercise any of these rights, please <Link to="/contact" className="text-blue-600 hover:text-blue-800 underline">contact us</Link>.
             </p>
 
             <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">California Residents</h2>
@@ -140,10 +141,10 @@ export default function Privacy() {
 
             <h2 className="text-xl font-semibold text-gray-900 mt-8 mb-4">Contact Us</h2>
             <p className="text-gray-600 mb-4">
-              If you have any questions or comments about this Privacy Policy, please contact us at:
-            </p>
-            <p className="text-gray-600 mb-4">
-              <strong>Email:</strong> support@sharepointimagestudio.com
+              If you have any questions or comments about this Privacy Policy, please{' '}
+              <Link to="/contact" className="text-blue-600 hover:text-blue-800 underline">
+                contact us
+              </Link>.
             </p>
           </section>
         </article>
