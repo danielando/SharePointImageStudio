@@ -232,10 +232,11 @@ export default function Home() {
       {/* Bottom Layout - Has generations */}
       {hasGenerations && (
         <>
-          <main className="flex-1 overflow-y-auto pb-32">
+          <main className="flex-1 overflow-y-auto pb-40">
             <div className="max-w-7xl mx-auto px-6 py-6">
               <ImageCanvas />
             </div>
+            <Footer />
           </main>
           <GenerationInterface onGenerate={handleGenerate} />
         </>
