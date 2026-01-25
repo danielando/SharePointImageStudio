@@ -57,6 +57,9 @@ serve(async (req) => {
     console.log('  Subject:', subject)
 
     // Send email via Resend API
+    // Note: Using Resend's default domain for testing. For production, verify your domain at resend.com/domains
+    const fromAddress = Deno.env.get('RESEND_FROM_EMAIL') || 'SharePoint Image Studio <onboarding@resend.dev>'
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -64,7 +67,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'SharePoint Image Studio <noreply@sharepointimagestudio.com>',
+        from: fromAddress,
         to: [contactEmail],
         reply_to: email,
         subject: `[Contact Form] ${subject}`,

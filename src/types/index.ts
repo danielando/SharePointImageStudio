@@ -28,7 +28,7 @@ export const GENERATION_TYPES: GenerationType[] = [
     id: 'page-header',
     name: 'Page Header',
     dimensions: { width: 1920, height: 460 },
-    aspectRatio: '16:3.8',
+    aspectRatio: '4:1',
     description: 'Title/header background images'
   },
   {
@@ -56,7 +56,7 @@ export const GENERATION_TYPES: GenerationType[] = [
     id: 'team-banner',
     name: 'Team Site Banner',
     dimensions: { width: 2560, height: 164 },
-    aspectRatio: '15.6:1',
+    aspectRatio: '21:9',
     description: 'Site header background images'
   },
   {

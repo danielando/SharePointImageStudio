@@ -8,12 +8,12 @@ export default function GenerationTypeSelector() {
   const getAspectRatioPreview = (aspectRatio: string) => {
     // Return a visual representation of the aspect ratio
     const ratios: Record<string, string> = {
-      '16:3.2': 'w-16 h-3',
-      '16:3.8': 'w-16 h-4',
       '1:1': 'w-8 h-8',
+      '4:3': 'w-10 h-8',
       '16:9': 'w-16 h-9',
       '2:1': 'w-12 h-6',
-      '7.5:1': 'w-20 h-3',
+      '4:1': 'w-16 h-4',
+      '21:9': 'w-20 h-8',
       'custom': 'w-10 h-10 border-2 border-dashed',
     }
     return ratios[aspectRatio] || 'w-10 h-10'
@@ -51,7 +51,7 @@ export default function GenerationTypeSelector() {
               </div>
               {isSelected && type.id !== 'custom' && (
                 <div className="absolute -bottom-6 left-0 right-0 text-xs text-charcoal-400 text-center">
-                  {type.dimensions.width} × {type.dimensions.height}
+                  {type.aspectRatio}
                 </div>
               )}
             </motion.button>

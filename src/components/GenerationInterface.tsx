@@ -253,7 +253,7 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
                       {type.name}
                     </span>
                     <span className="text-[10px] text-gray-400">
-                      {type.dimensions.width}×{type.dimensions.height}
+                      {type.aspectRatio}
                     </span>
                   </button>
                 )
