@@ -74,13 +74,14 @@ export async function generateImage(params: GenerateImageRequest): Promise<strin
       const ratio = w / h
       // Map to supported aspect ratios: 1:1, 2:3, 3:2, 3:4, 4:3, 4:5, 5:4, 9:16, 16:9, 21:9
       if (Math.abs(ratio - 1) < 0.1) return '1:1'
-      if (Math.abs(ratio - 16/9) < 0.2) return '16:9'
-      if (Math.abs(ratio - 9/16) < 0.2) return '9:16'
       if (Math.abs(ratio - 4/3) < 0.1) return '4:3'
       if (Math.abs(ratio - 3/4) < 0.1) return '3:4'
       if (Math.abs(ratio - 3/2) < 0.1) return '3:2'
       if (Math.abs(ratio - 2/3) < 0.1) return '2:3'
-      if (Math.abs(ratio - 21/9) < 0.3) return '21:9'
+      if (Math.abs(ratio - 16/9) < 0.2) return '16:9'
+      if (Math.abs(ratio - 9/16) < 0.2) return '9:16'
+      // For very wide ratios (2:1, 4:1, etc.), use 21:9 as it's the widest supported
+      if (ratio >= 2) return '21:9'
       if (ratio > 1) return '16:9' // Default wide
       return '9:16' // Default tall
     }
