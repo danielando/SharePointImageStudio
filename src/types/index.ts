@@ -26,17 +26,31 @@ export const GENERATION_TYPES: GenerationType[] = [
   },
   {
     id: 'page-header',
-    name: 'Page Header',
+    name: 'Page Header (Wide)',
     dimensions: { width: 1920, height: 460 },
     aspectRatio: '4:1',
-    description: 'Title/header background images'
+    description: 'Wide title/header background images'
   },
   {
-    id: 'quick-links',
-    name: 'Quick Links Icon',
+    id: 'page-header-standard',
+    name: 'Page Header (Standard)',
+    dimensions: { width: 1920, height: 1080 },
+    aspectRatio: '16:9',
+    description: 'Standard title/header background images'
+  },
+  {
+    id: 'quick-links-square',
+    name: 'Quick Links (Square)',
     dimensions: { width: 300, height: 300 },
     aspectRatio: '1:1',
-    description: 'Square icons for Quick Links web part'
+    description: 'For Compact, List, Tiles layouts'
+  },
+  {
+    id: 'quick-links-wide',
+    name: 'Quick Links (Wide)',
+    dimensions: { width: 1600, height: 900 },
+    aspectRatio: '16:9',
+    description: 'For Grid, Filmstrip, Button layouts'
   },
   {
     id: 'news',
@@ -57,7 +71,7 @@ export const GENERATION_TYPES: GenerationType[] = [
     name: 'Team Site Banner',
     dimensions: { width: 2560, height: 164 },
     aspectRatio: '21:9',
-    description: 'Site header background images'
+    description: 'Site header backgrounds - patterns work best'
   },
   {
     id: 'gallery',

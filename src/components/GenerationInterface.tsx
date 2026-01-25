@@ -262,7 +262,7 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
             </div>
             <p className="mt-3 text-[10px] text-gray-400">
               Images generated at closest supported aspect ratio.
-              {selectedType.id === 'team-banner' && <span className="text-amber-500"> * Ultra-wide format - results may vary.</span>}
+              {selectedType.id === 'team-banner' && <span className="text-amber-500"> * Ultra-wide format - abstract patterns and textures work best.</span>}
             </p>
           </div>
         )}
