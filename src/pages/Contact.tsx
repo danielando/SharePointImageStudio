@@ -3,6 +3,7 @@ import { Send, CheckCircle } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { supabase } from '../services/supabase'
+import { trackContactFormSubmit } from '../services/analytics'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -34,6 +35,9 @@ export default function Contact() {
       if (error) {
         throw new Error(error.message)
       }
+
+      // Track successful form submission
+      trackContactFormSubmit(formData.subject)
 
       setStatus('success')
       setFormData({ name: '', email: '', subject: '', message: '' })

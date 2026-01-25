@@ -4,6 +4,7 @@ import { msalInstance, initializeMsal, handleRedirectPromise, attemptSilentSignI
 import { useStore } from '../store/useStore'
 import { createCheckoutSession } from '../services/stripeService'
 import { STRIPE_PRICE_IDS } from '../config/stripeConfig'
+import { trackSignUp } from '../services/analytics'
 
 interface AuthProviderProps {
   children: React.ReactNode
@@ -31,8 +32,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       localStorage.removeItem('pendingPlan')
       return false
     }
-
-    console.log('📦 Processing pending plan:', pendingPlan)
 
     // Set loading state BEFORE removing the plan
     setProcessingCheckout(true)
@@ -68,9 +67,13 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       const redirectResult = await handleRedirectPromise()
 
       if (redirectResult) {
-        console.log('✅ User signed in via redirect')
         setUser(redirectResult.user)
         setAuthenticated(true)
+
+        // Track sign up event (new users coming from Azure AD redirect)
+        if (redirectResult.isNewUser) {
+          trackSignUp('azure_ad')
+        }
 
         // Check for pending plan and redirect to checkout if needed
         await handlePendingPlanCheckout(redirectResult.user)
@@ -81,11 +84,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       const ssoResult = await attemptSilentSignIn()
 
       if (ssoResult) {
-        console.log('✅ User signed in silently via SSO')
         setUser(ssoResult.user)
         setAuthenticated(true)
-      } else {
-        console.log('ℹ️ No active M365 session - user will need to login')
       }
     }
 

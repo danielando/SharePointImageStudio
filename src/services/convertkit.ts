@@ -14,7 +14,6 @@ interface SubscriberData {
  */
 export async function addSubscriberToConvertKit(data: SubscriberData): Promise<boolean> {
   if (!CONVERTKIT_API_KEY) {
-    console.warn('ConvertKit API key not configured, skipping subscriber addition')
     return false
   }
 
@@ -33,16 +32,12 @@ export async function addSubscriberToConvertKit(data: SubscriberData): Promise<b
     })
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      console.error('ConvertKit API error:', response.status, errorData)
       return false
     }
 
     await response.json()
-    console.log('✅ Successfully added subscriber to ConvertKit:', data.email)
     return true
-  } catch (error) {
-    console.error('Error adding subscriber to ConvertKit:', error)
+  } catch {
     return false
   }
 }

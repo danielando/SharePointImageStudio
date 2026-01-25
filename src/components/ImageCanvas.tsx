@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Download, Trash2, ChevronLeft, ChevronRight, X, Copy, RotateCcw, Sparkles } from 'lucide-react'
 import { useStore } from '../store/useStore'
+import { trackDownloadImage, trackCopyImage } from '../services/analytics'
 
 const LOADING_MESSAGES = [
   'Mixing pixels...',
@@ -31,8 +32,9 @@ export default function ImageCanvas() {
   const [, setIsDragging] = useState(false)
   const [, setDraggedImage] = useState<string | null>(null)
 
-  const handleDownload = async (imageUrl: string, fileName: string) => {
+  const handleDownload = async (imageUrl: string, fileName: string, generationType: string) => {
     try {
+      trackDownloadImage(generationType)
       const response = await fetch(imageUrl)
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
@@ -48,8 +50,9 @@ export default function ImageCanvas() {
     }
   }
 
-  const handleCopyToClipboard = async (imageUrl: string) => {
+  const handleCopyToClipboard = async (imageUrl: string, generationType: string) => {
     try {
+      trackCopyImage(generationType)
       const response = await fetch(imageUrl)
       const blob = await response.blob()
       await navigator.clipboard.write([
@@ -197,7 +200,7 @@ export default function ImageCanvas() {
                         <RotateCcw className="w-3.5 h-3.5 text-white" />
                       </button>
                       <button
-                        onClick={() => handleCopyToClipboard(generation.image_url)}
+                        onClick={() => handleCopyToClipboard(generation.image_url, generation.generation_type)}
                         className="p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-md transition-colors"
                         title="Copy to clipboard"
                       >
@@ -209,7 +212,8 @@ export default function ImageCanvas() {
                       <button
                         onClick={() => handleDownload(
                           generation.image_url,
-                          `sharepoint-${generation.generation_type}-${Date.now()}.png`
+                          `sharepoint-${generation.generation_type}-${Date.now()}.png`,
+                          generation.generation_type
                         )}
                         className="p-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-md transition-colors"
                         title="Download"
@@ -302,7 +306,7 @@ export default function ImageCanvas() {
                 {/* Action Icons */}
                 <div className="flex items-center gap-6">
                   <button
-                    onClick={() => handleCopyToClipboard(selectedGeneration.image_url)}
+                    onClick={() => handleCopyToClipboard(selectedGeneration.image_url, selectedGeneration.generation_type)}
                     className="flex items-center gap-2 text-white hover:text-white/80 transition-colors"
                   >
                     <Copy className="w-5 h-5" />
@@ -338,7 +342,8 @@ export default function ImageCanvas() {
                   <button
                     onClick={() => handleDownload(
                       selectedGeneration.image_url,
-                      `sharepoint-${selectedGeneration.generation_type}-${Date.now()}.png`
+                      `sharepoint-${selectedGeneration.generation_type}-${Date.now()}.png`,
+                      selectedGeneration.generation_type
                     )}
                     className="flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-white/90 text-black rounded-lg font-medium text-sm transition-colors"
                   >

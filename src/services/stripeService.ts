@@ -15,8 +15,6 @@ interface CreatePortalSessionParams {
 export async function createCheckoutSession(params: CreateCheckoutSessionParams): Promise<string> {
   const { priceId, userId, userEmail, tier } = params
 
-  console.log('Creating checkout session:', { priceId, userId, userEmail, tier })
-
   const { data, error } = await supabase.functions.invoke('create-checkout-session', {
     body: {
       priceId,
@@ -29,28 +27,22 @@ export async function createCheckoutSession(params: CreateCheckoutSessionParams)
   })
 
   if (error) {
-    console.error('Error creating checkout session:', error)
     throw new Error(`Failed to create checkout session: ${error.message}`)
   }
 
   if (data?.error) {
-    console.error('Stripe error:', data.error)
     throw new Error(`Stripe error: ${data.error}`)
   }
 
   if (!data?.url) {
-    console.error('No URL in response:', data)
     throw new Error('No checkout URL returned')
   }
 
-  console.log('Checkout URL received:', data.url)
   return data.url
 }
 
 export async function createCustomerPortalSession(params: CreatePortalSessionParams): Promise<string> {
   const { customerId, returnUrl } = params
-
-  console.log('Creating customer portal session:', { customerId })
 
   const { data, error } = await supabase.functions.invoke('create-portal-session', {
     body: {
@@ -60,20 +52,16 @@ export async function createCustomerPortalSession(params: CreatePortalSessionPar
   })
 
   if (error) {
-    console.error('Error creating portal session:', error)
     throw new Error(`Failed to create portal session: ${error.message}`)
   }
 
   if (data?.error) {
-    console.error('Stripe error:', data.error)
     throw new Error(`Stripe error: ${data.error}`)
   }
 
   if (!data?.url) {
-    console.error('No URL in response:', data)
     throw new Error('No portal URL returned')
   }
 
-  console.log('Portal URL received:', data.url)
   return data.url
 }

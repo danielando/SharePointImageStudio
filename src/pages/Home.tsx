@@ -11,6 +11,7 @@ import SignInModal from '../components/SignInModal'
 import UpgradeModal from '../components/UpgradeModal'
 import { Generation } from '../types'
 import { IMAGE_STYLES } from '../constants/imageStyles'
+import { trackGenerateImage, trackCreditsDepleted } from '../services/analytics'
 
 export default function Home() {
   const isAuthenticated = useIsAuthenticated()
@@ -74,20 +75,21 @@ export default function Home() {
     // Check credit balance
     const currentBalance = user.image_balance ?? 0
 
-    console.log('🔍 Balance check:', {
-      tier: user.subscription_tier,
-      balance: currentBalance,
-      monthlyAllocation: user.monthly_allocation,
-      resolution: selectedResolution,
-      creditCostPerImage,
-      totalCreditCost
-    })
-
     // Check if user has enough credits for the total cost
     if (currentBalance < totalCreditCost) {
+      trackCreditsDepleted(user.subscription_tier)
       setShowUpgradeModal(true)
       return
     }
+
+    // Track image generation event
+    trackGenerateImage({
+      generationType: selectedType.name,
+      resolution: selectedResolution,
+      style: selectedStyle,
+      hasReferences: imageReferences.length > 0,
+      variationsCount,
+    })
 
     // Upload image references once (shared across all variations)
     const imageRefs = await Promise.all(
@@ -119,26 +121,16 @@ export default function Home() {
       ;(async () => {
         try {
           // CRITICAL: Deduct credits BEFORE calling the API to prevent race conditions
-          console.log('💳 Decrementing credits for user:', user.id, 'Cost:', creditCostPerImage)
           const { data: decrementSuccess, error: decrementError } = await supabase
             .rpc('decrement_image_balance', {
               p_user_id: user.id,
               p_count: creditCostPerImage
             })
 
-          if (decrementError) {
-            console.error('❌ Error decrementing balance:', decrementError)
+          if (decrementError || decrementSuccess === false) {
             updateGeneration(generationId, { status: 'failed' })
             return
           }
-
-          if (decrementSuccess === false) {
-            console.error('❌ Insufficient credits')
-            updateGeneration(generationId, { status: 'failed' })
-            return
-          }
-
-          console.log('✅ Balance decremented successfully')
 
           // Update local user state optimistically
           setUser({
@@ -163,22 +155,18 @@ export default function Home() {
           })
 
           // Refresh user data to get accurate balance
-          console.log('🔄 Fetching updated user data...')
-          const { data: updatedUser, error: fetchError } = await supabase
+          const { data: updatedUser } = await supabase
             .from('users')
             .select('*')
             .eq('id', user.id)
             .single()
 
-          if (fetchError) {
-            console.error('❌ Error fetching updated user:', fetchError)
-          } else if (updatedUser) {
-            console.log('✅ Updated user data:', updatedUser)
+          if (updatedUser) {
             setUser(updatedUser)
           }
 
           // Save to database for profile gallery
-          const { error: saveError } = await supabase
+          await supabase
             .from('image_generations')
             .insert({
               user_id: user.id,
@@ -189,18 +177,12 @@ export default function Home() {
               dimensions: `${selectedType.dimensions.width}x${selectedType.dimensions.height}`,
             })
 
-          if (saveError) {
-            console.error('❌ Error saving generation to database:', saveError)
-          } else {
-            console.log('✅ Generation saved to database')
-          }
 
           updateGeneration(generationId, {
             image_url: imageUrl,
             status: 'completed',
           })
-        } catch (error) {
-          console.error('Generation failed:', error)
+        } catch {
           updateGeneration(generationId, { status: 'failed' })
           // Note: Credits are NOT refunded on failure - this prevents abuse
           // Users can contact support for legitimate failures

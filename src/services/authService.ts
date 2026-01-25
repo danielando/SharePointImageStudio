@@ -45,9 +45,8 @@ export const attemptSilentSignIn = async () => {
           // Successfully got SSO login, now create/update user in Supabase
           return await createOrUpdateUser(ssoResponse.account, ssoResponse.accessToken)
         }
-      } catch (ssoError: any) {
+      } catch {
         // SSO silent failed - user not logged into M365, that's OK
-        console.log('SSO silent sign-in not available:', ssoError.errorCode)
         return null
       }
     } else {
@@ -118,7 +117,7 @@ const createOrUpdateUser = async (account: any, accessToken: string) => {
             .single()
 
           if (retryUser) {
-            return { user: retryUser, account, profile }
+            return { user: retryUser, account, profile, isNewUser: false }
           }
         }
 
@@ -132,7 +131,7 @@ const createOrUpdateUser = async (account: any, accessToken: string) => {
         firstName: profile.displayName?.split(' ')[0] || undefined,
       }).catch(err => console.error('ConvertKit subscription failed:', err))
 
-      return { user: newUser, account, profile }
+      return { user: newUser, account, profile, isNewUser: true }
     }
 
     // Update existing user's name if changed
@@ -143,7 +142,7 @@ const createOrUpdateUser = async (account: any, accessToken: string) => {
         .eq('id', existingUser.id)
     }
 
-    return { user: existingUser, account, profile }
+    return { user: existingUser, account, profile, isNewUser: false }
   } catch (error) {
     console.error('Error creating/updating user:', error)
     throw error

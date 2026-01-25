@@ -1,17 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useStore } from '../store/useStore'
+import { trackPurchase } from '../services/analytics'
 
 export default function CheckoutSuccess() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { user: _user } = useStore()
+  const { user } = useStore()
   const [countdown, setCountdown] = useState(10)
+  const hasTrackedPurchase = useRef(false)
 
   const sessionId = searchParams.get('session_id')
+
+  // Track purchase event on mount (only once)
+  useEffect(() => {
+    if (!hasTrackedPurchase.current && sessionId) {
+      hasTrackedPurchase.current = true
+      // Determine tier and value from user data or URL params
+      const tier = user?.subscription_tier as 'basic' | 'pro' || 'basic'
+      const value = tier === 'pro' ? 49 : 15
+      trackPurchase(tier, value, sessionId)
+    }
+  }, [sessionId, user])
 
   useEffect(() => {
     // Countdown timer for redirect

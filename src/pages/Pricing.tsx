@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Check } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useIsAuthenticated } from '@azure/msal-react'
@@ -8,12 +8,22 @@ import { useStore } from '../store/useStore'
 import { signIn } from '../services/authService'
 import { createCheckoutSession } from '../services/stripeService'
 import { STRIPE_PRICE_IDS } from '../config/stripeConfig'
+import { trackViewPricing, trackBeginCheckout } from '../services/analytics'
 
 export default function Pricing() {
   const navigate = useNavigate()
   const isAuthenticated = useIsAuthenticated()
   const { user } = useStore()
   const [loading, setLoading] = useState<string | null>(null)
+  const hasTrackedView = useRef(false)
+
+  // Track pricing page view (only once)
+  useEffect(() => {
+    if (!hasTrackedView.current) {
+      hasTrackedView.current = true
+      trackViewPricing()
+    }
+  }, [])
 
   const handlePlanSelection = async (planName: string) => {
     try {
@@ -40,6 +50,10 @@ export default function Pricing() {
       // Create Stripe checkout session
       const priceId = planName === 'Basic' ? STRIPE_PRICE_IDS.basic : STRIPE_PRICE_IDS.pro
       const tier = planName.toLowerCase() as 'basic' | 'pro'
+      const value = tier === 'pro' ? 49 : 15
+
+      // Track begin checkout event
+      trackBeginCheckout(tier, value)
 
       const checkoutUrl = await createCheckoutSession({
         priceId,
