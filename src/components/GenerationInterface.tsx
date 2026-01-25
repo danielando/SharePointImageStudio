@@ -254,11 +254,16 @@ export default function GenerationInterface({ onGenerate, centered = false }: Ge
                     </span>
                     <span className="text-[10px] text-gray-400">
                       {type.aspectRatio}
+                      {type.id === 'team-banner' && ' *'}
                     </span>
                   </button>
                 )
               })}
             </div>
+            <p className="mt-3 text-[10px] text-gray-400">
+              Images generated at closest supported aspect ratio.
+              {selectedType.id === 'team-banner' && <span className="text-amber-500"> * Ultra-wide format - results may vary.</span>}
+            </p>
           </div>
         )}
 
