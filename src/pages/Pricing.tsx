@@ -115,7 +115,7 @@ export default function Pricing() {
       period: '/mo',
       billingNote: '',
       limit: '2 credits to try',
-      limitNote: '2 images at 2K or 4 at 1K',
+      limitNote: '2 images at 2K, or 2 at 1K',
       features: [
         'All SharePoint image types',
         'AI-powered image generation',
@@ -130,7 +130,7 @@ export default function Pricing() {
       period: '/mo',
       billingNote: 'billed monthly',
       limit: '50 credits / month',
-      limitNote: '50 images at 2K, 100 at 1K, or 25 at 4K',
+      limitNote: '50 images at 2K, 66 at 1K, or 25 at 4K',
       heading: 'Everything in Free plus:',
       features: [
         'Advanced style options',
@@ -147,7 +147,7 @@ export default function Pricing() {
       period: '/mo',
       billingNote: 'billed monthly',
       limit: '100 credits / month',
-      limitNote: '100 images at 2K, 200 at 1K, or 50 at 4K',
+      limitNote: '100 images at 2K, 133 at 1K, or 50 at 4K',
       heading: 'Everything in Basic plus:',
       features: [
         'Up to 5 variations per generation',

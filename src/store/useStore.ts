@@ -4,7 +4,7 @@ import { Element, Generation, ImageReference, GenerationType, GENERATION_TYPES }
 // Resolution options with credit costs
 export type Resolution = '1K' | '2K' | '4K'
 export const RESOLUTION_OPTIONS: { id: Resolution; label: string; creditCost: number }[] = [
-  { id: '1K', label: '1K', creditCost: 0.5 },
+  { id: '1K', label: '1K', creditCost: 0.75 },
   { id: '2K', label: '2K', creditCost: 1 },
   { id: '4K', label: '4K', creditCost: 2 },
 ]
