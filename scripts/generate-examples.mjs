@@ -1,14 +1,26 @@
 // Script to generate example images for the landing page
-// Run with: node scripts/generate-examples.mjs
+// Run with: NANO_BANANA_API_KEY=your_key node scripts/generate-examples.mjs
+// Or set the key in your .env.local file
 
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { config } from 'dotenv'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const API_KEY = 'AIzaSyAOX99PzFQMCn9hW0EvnWTCpdIv1PnayZY'
+// Load environment variables from .env.local
+config({ path: path.join(__dirname, '..', '.env.local') })
+config({ path: path.join(__dirname, '..', '.env') })
+
+const API_KEY = process.env.NANO_BANANA_API_KEY || process.env.VITE_NANO_BANANA_API_KEY
+
+if (!API_KEY) {
+  console.error('Error: NANO_BANANA_API_KEY or VITE_NANO_BANANA_API_KEY environment variable is required')
+  console.error('Set it in .env.local or pass it directly: NANO_BANANA_API_KEY=your_key node scripts/generate-examples.mjs')
+  process.exit(1)
+}
 const API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
 const MODEL = 'gemini-3-pro-image-preview'
 
