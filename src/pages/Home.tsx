@@ -198,11 +198,43 @@ export default function Home() {
       {/* Centered Layout - No generations yet */}
       {!hasGenerations && (
         <>
-          <main className="flex-1 flex items-center justify-center px-6 pb-36">
-            <div className="w-full max-w-4xl">
-              <h1 className="text-2xl font-medium text-gray-700 text-center mb-8">
-                What do you want to create today?
-              </h1>
+          <main className="flex-1 overflow-y-auto px-6 py-8">
+            <div className="w-full max-w-4xl mx-auto">
+              {/* Hero Section - Different content for authenticated vs non-authenticated users */}
+              {isAuthenticated ? (
+                <>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">
+                    What would you like to create?
+                  </h1>
+                  <p className="text-sm sm:text-base text-gray-500 text-center mb-6">
+                    Start with a SharePoint-ready prompt or choose a common page type below.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 text-center mb-4">
+                    Create SharePoint-ready images in seconds
+                  </h1>
+                  <p className="text-base sm:text-lg text-gray-600 text-center mb-6 max-w-2xl mx-auto">
+                    Built for Microsoft 365 teams who need clean, consistent visuals for intranet pages, news posts, and team sites — without designers or stock photos.
+                  </p>
+
+                  {/* Primary CTA */}
+                  <div className="text-center mb-8">
+                    <button
+                      onClick={() => setShowSignInModal(true)}
+                      className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors text-base"
+                    >
+                      Generate your first SharePoint image
+                    </button>
+                    <p className="text-sm text-gray-500 mt-3">
+                      Free to try · 2 free images · No credit card required
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {/* Generation Interface */}
               <GenerationInterface onGenerate={handleGenerate} centered />
             </div>
           </main>

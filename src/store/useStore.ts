@@ -72,6 +72,8 @@ interface AppState {
   setEditingElement: (element: Element | null) => void
   selectedGeneration: Generation | null
   setSelectedGeneration: (generation: Generation | null) => void
+  advancedSettingsOpen: boolean
+  setAdvancedSettingsOpen: (open: boolean) => void
 }
 
 const initialState = {
@@ -90,6 +92,7 @@ const initialState = {
   showElementsModal: false,
   editingElement: null,
   selectedGeneration: null,
+  advancedSettingsOpen: false,
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -157,4 +160,6 @@ export const useStore = create<AppState>((set) => ({
   setEditingElement: (element) => set({ editingElement: element }),
   selectedGeneration: null,
   setSelectedGeneration: (generation) => set({ selectedGeneration: generation }),
+  advancedSettingsOpen: false,
+  setAdvancedSettingsOpen: (open) => set({ advancedSettingsOpen: open }),
 }))

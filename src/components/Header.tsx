@@ -73,9 +73,14 @@ export default function Header() {
               >
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">{user.name || user.email}</p>
-                  <p className="text-xs text-gray-500">
-                    {formatCredits(getCreditBalance())} credit{getCreditBalance() !== 1 ? 's' : ''}
-                  </p>
+                  <div className="text-xs text-gray-500 group relative">
+                    <span className="cursor-help">
+                      {formatCredits(getCreditBalance())} credit{getCreditBalance() !== 1 ? 's' : ''}
+                    </span>
+                    <span className="absolute bottom-full right-0 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                      One credit generates one SharePoint-ready image.
+                    </span>
+                  </div>
                 </div>
                 <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center">
                   <User className="w-5 h-5 text-gray-600" />
